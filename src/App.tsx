@@ -18,7 +18,7 @@ const App=()=>{
   const [sidebarImages, setSidebarImages] = useState<string[]>([])
 
   const handleAddSidebarImage = (url: string) => {
-    setSidebarImages(prev => [...prev, url])
+    setSidebarImages(prev =>[...prev,url])
   }
 
 
