@@ -115,11 +115,12 @@ export default function SidebarWithMiniPanel({ sidebarImages, canvas }) {
   }
 
   return (
-    <div className="flex h-screen">
+    <div className="flex h-full bg-gray-800"> 
       {/* Sidebar */}
-      <div className="bg-gray-800 text-white w-28 flex flex-col py-6 gap-4 px-2">
-        <div className="text-2xl font-bold text-center">🌟</div>
-        <nav className="flex flex-col gap-2">
+      <div className="text-white w-28 flex flex-col py-6 gap-4 px-2 h-full">
+      <div className="text-2xl font-bold text-center">🌟</div>
+      <nav className="flex flex-col gap-2">
+          {/* Keep all menu items exactly the same */}
           {menuItems.map((item) => (
             <div key={item.id}>
               <button
@@ -135,7 +136,7 @@ export default function SidebarWithMiniPanel({ sidebarImages, canvas }) {
                   <span>{expandedMenus[item.id] ? '' : ''}</span>
                 )}
               </button>
-
+  
               {item.subItems && expandedMenus[item.id] && (
                 <div className="ml-6 mt-1 flex flex-col gap-1">
                   {item.subItems.map((sub) => (
@@ -155,10 +156,10 @@ export default function SidebarWithMiniPanel({ sidebarImages, canvas }) {
           ))}
         </nav>
       </div>
-
-      {/* Mini Page */}
+  
+      {/* Mini Page - only added h-full here */}
       {activePage && (
-        <div className=" border-gray-300 shadow-lg">
+        <div className="border-gray-300 shadow-lg h-full"> {/* Added h-full */}
           {renderMiniPage()}
         </div>
       )}
