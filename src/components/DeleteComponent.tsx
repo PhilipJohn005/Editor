@@ -58,7 +58,7 @@ const DeleteComponent= ({canvas,canvasRef,onDelete}) => {
   return (
     <>
       {deleteButtonPos && (
-        <button onClick={handleDelete} className=' bg-red-500'>
+        <button onClick={handleDelete} className=' bg-red-500' style={{transform:'translateZ(0)'}}>
           Delete
         </button>
       )}

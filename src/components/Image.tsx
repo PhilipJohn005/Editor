@@ -83,8 +83,10 @@ const ImageComponent = ({canvas,check,s,addImageToSide}) => {
                     top: '10%',
                     left: '40%',
                     backgroundColor: 'blue',
+                    transform: 'translateZ(0)'
                 }}
                 onChange={handleImageUpload}
+
             />
         </div>
     );

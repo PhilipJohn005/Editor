@@ -91,9 +91,10 @@ const App = () => {
       <div className="flex-1 overflow-auto relative"> 
         <div
           className="absolute"
-          style={{ top: '20%', left: '50%', transform: 'translateX(-50%)' }}
+          style={{ top: '20%', left: '50%', transform: 'translateX(-50%)'}}
         >
-          <canvas ref={canvasRef} width={width} height={height} />
+          <canvas ref={canvasRef} width={width} height={height}/>
+          <div style={{ height: '50px' }} />
         </div>
   
         <button
@@ -109,6 +110,7 @@ const App = () => {
           check={check}
           s={setCheck}
           addImageToSide={handleAddSidebarImage}
+          
         />
   
         <div className="absolute right-1/5 top-1/5">
