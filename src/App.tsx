@@ -13,14 +13,16 @@ const App = () => {
   const { width, height } = location.state || {};
 
   const canvasRef = useRef(null);
+  const canvasContainerRef = useRef(null);
   const [canvas, setCanvas] = useState<Canvas | null>(null);
   const [check, setCheck] = useState(false);
   const [guideLines, setGuideLines] = useState([]);
   const [sidebarImages, setSidebarImages] = useState<string[]>([]);
+  const [zoomLevel, setZoomLevel] = useState(1);
 
   useEffect(() => {
     if (!width || !height) {
-      navigate('/'); // fallback if state not passed
+      navigate('/');
       return;
     }
 
@@ -45,6 +47,28 @@ const App = () => {
     }
   }, [width, height]);
 
+  const handleZoom = (direction: 'in' | 'out') => {
+    const zoomFactor = direction === 'in' ? 1.1 : 0.9;
+    const newZoom = zoomLevel * zoomFactor;
+    
+    // Limit zoom levels (optional)
+    if (newZoom > 3 || newZoom < 0.5) return;
+    
+    setZoomLevel(newZoom);
+    
+    if (canvasContainerRef.current) {
+      const currentTransform = canvasContainerRef.current.style.transform;
+      const translateMatch = currentTransform.match(/translateX\(([^)]+)\)/);
+      const currentTranslate = translateMatch ? translateMatch[1] : '-50%';
+      
+      canvasContainerRef.current.style.transform = `translateX(${currentTranslate}) scale(${newZoom})`;
+      canvasContainerRef.current.style.transformOrigin = 'center top';
+      
+      const padding = 20 / newZoom; 
+      canvasContainerRef.current.style.padding = `0 ${Math.max(10, padding)}px`;
+    }
+  };
+
   const handleAddSidebarImage = (url: string) => {
     setSidebarImages((prev) => [...prev, url]);
   };
@@ -65,7 +89,6 @@ const App = () => {
 
       canvas.add(rect);
       canvas.setActiveObject(rect);
-
       const activeObj = canvas.getActiveObject();
       if (activeObj) {
         activeObj.set({
@@ -84,18 +107,20 @@ const App = () => {
   return (
     <div className="bg-gray-200 min-h-screen flex"> 
       
-      <div className="h-screen flex"> 
-      <Sidebar sidebarImages={sidebarImages} canvas={canvas} />
-    </div>
+      <div className="min-h-screen flex"> 
+        <Sidebar sidebarImages={sidebarImages} canvas={canvas} />
+      </div>
   
       <div className="flex-1 overflow-auto relative"> 
-        <div
-          className="absolute"
-          style={{ top: '20%', left: '50%', transform: 'translateX(-50%)'}}
-        >
-          <canvas ref={canvasRef} width={width} height={height}/>
-          <div style={{ height: '50px' }} />
-        </div>
+        <div ref={canvasContainerRef} className="absolute"
+          style={{ top: '20%', left: '50%', transform: 'translateX(-50%) scale(1)',transition: 'transform 0.1s ease',willChange: 'transform',padding: '0 20px' }}>
+            
+            <div style={{ position: 'relative',width: `${width}px`,height: `${height}px`,margin: '0 auto' }}>
+                <canvas ref={canvasRef} width={width} height={height}/>
+            </div>
+        <div style={{height:'50px'}}/>
+
+      </div>
   
         <button
           onClick={addRectangle}
@@ -105,12 +130,29 @@ const App = () => {
           Add Rectangle
         </button>
   
+        <div className="absolute top-4 right-4">
+          <button 
+            onClick={() => handleZoom('in')} 
+            className="bg-blue-500 text-white"
+          >
+            Zoom In
+          </button>
+          <button 
+            onClick={() => handleZoom('out')} 
+            className="bg-blue-500 text-white"
+          >
+            Zoom Out 
+          </button>
+          <div className="text-center text-sm">
+            Zoom: {Math.round(zoomLevel * 100)}%
+          </div>
+        </div>
+  
         <Image
           canvas={canvas}
           check={check}
           s={setCheck}
           addImageToSide={handleAddSidebarImage}
-          
         />
   
         <div className="absolute right-1/5 top-1/5">
