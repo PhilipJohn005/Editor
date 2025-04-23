@@ -48,6 +48,16 @@ const ImageComponent = ({canvas,check,s,addImageToSide}) => {
                 });
 
                 canvas.add(image);
+                canvas.setActiveObject(image);
+                const activeObj = canvas.getActiveObject();
+                    if (activeObj) {
+                        activeObj.set({
+                        cornerColor: 'green',
+                        cornerSize: 12,
+                        transparentCorners: false,
+                        cornerStyle: 'circle',
+                    });
+                }
                 canvas.renderAll();
 
               
@@ -64,7 +74,7 @@ const ImageComponent = ({canvas,check,s,addImageToSide}) => {
                         image.top -= (boundingRect.top + boundingRect.height - canvas.height!);
                     }
                 });
-
+                
                 image.on('rotating', function () {
                     image.setCoords();
                 });

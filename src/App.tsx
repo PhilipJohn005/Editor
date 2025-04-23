@@ -110,7 +110,7 @@ const App = () => {
       <div className="min-h-screen flex"> 
         <Sidebar sidebarImages={sidebarImages} canvas={canvas} />
       </div>
-  
+     
       <div className="flex-1 overflow-auto relative"> 
         <div ref={canvasContainerRef} className="absolute"
           style={{ top: '20%', left: '50%', transform: 'translateX(-50%) scale(1)',transition: 'transform 0.1s ease',willChange: 'transform',padding: '0 20px' }}>
@@ -118,9 +118,9 @@ const App = () => {
             <div style={{ position: 'relative',width: `${width}px`,height: `${height}px`,margin: '0 auto' }}>
                 <canvas ref={canvasRef} width={width} height={height}/>
             </div>
-        <div style={{height:'50px'}}/>
+            <div style={{height:'50px'}}/>
 
-      </div>
+        </div>
   
         <button
           onClick={addRectangle}
