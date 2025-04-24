@@ -41,7 +41,7 @@ const ImageComponent = ({canvas,check,s,addImageToSide}) => {
                 );
                 image.scale(scaleFactor);
 
-                // Center image and add to canvas
+                
                 image.set({
                     left: (canvas.width! - image.width! * scaleFactor) / 2,
                     top: (canvas.height! - image.height! * scaleFactor) / 2,
@@ -59,8 +59,59 @@ const ImageComponent = ({canvas,check,s,addImageToSide}) => {
                     });
                 }
                 canvas.renderAll();
+                
+                image.on('scaling', function (e) {  //when image is being scaled we first get eh top,left,widthetc and compare with canvas boundaries 
+                    let obj = e.transform?.target;
+                    obj.setCoords();
+                    
+                    let top=obj.getBoundingRect().top;
+                    let left=obj.getBoundingRect().left;
+                    let height=obj.getBoundingRect().height;
+                    let width=obj.getBoundingRect().width
 
-              
+                    if(top+height>canvas.height){
+                        obj.scaleY=1;
+                        obj.setCoords();
+                        let h=obj.getScaledHeight();
+
+                        obj.scaleY=(canvas.height-top)/h;
+                        obj.setCoords();
+                        canvas.renderAll();
+
+                    }
+
+                    if(top<0){
+                        obj.scaleY=1;
+                        obj.setCoords();
+                        let h=obj.getScaledHeight();
+                        obj.scaleY=(height+top)/h;
+                        obj.top=0;
+                        obj.setCoords();
+                        canvas.renderAll();
+
+                    }
+
+                    if(left+width>canvas.width){
+                        obj.scaleX=1;
+                        obj.setCoords();
+                        let w=obj.getScaledWidth();
+
+                        obj.scaleX=(canvas.width-left)/w;
+                        obj.setCoords();
+                        canvas.renderAll();
+                    }
+
+                    if(left<0){
+                        obj.scaleX=1;
+                        obj.setCoords();
+                        let w=obj.getScaledWidth();
+                        obj.scaleX=(width+left)/w;
+                        obj.left=0;
+                        obj.setCoords();
+                        canvas.renderAll();
+                    }
+                });
+                
                 image.on('moving', function () {
                     image.setCoords();
                     const boundingRect = image.getBoundingRect();

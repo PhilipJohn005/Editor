@@ -227,14 +227,12 @@ export default function SidebarWithMiniPanel({ sidebarImages, canvas }) {
         </nav>
       </div>
 
-      {/* Mini Page */}
       {activePage && (
         <div className="border-gray-300 shadow-lg h-full">
           {renderMiniPage()}
         </div>
       )}
 
-      {/* Fixed Panel at Top */}
       {selectedTextObj && (
         <div className="fixed top-0 left-1/2 -translate-x-1/2 z-50 bg-white rounded border border-gray-300 flex gap-4 items-center">
           <label className="text-sm">
