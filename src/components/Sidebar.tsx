@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react'
 import * as fabric from 'fabric'
+import demoqr from '../assets/demoqr.png'
+import signurl from '../assets/sign.jpeg'
 
 type MenuItem = {
   id: string
@@ -84,6 +86,110 @@ export default function SidebarWithMiniPanel({ sidebarImages, canvas }) {
     canvas.renderAll()
   }
 
+
+
+  const addSignToCanvas=(signUrl:string)=>{
+    const signElement=document.createElement('img');
+    signElement.src=signUrl;
+    signElement.onload=function (){
+      const signImg=new fabric.Image(signElement,{
+        hasBorders: true,
+        hasControls: true,
+        selectable: true,
+        lockScalingFlip: true,
+      })
+
+      const scaleFactor = (canvas.width! * 0.2) / signImg.width!;
+      
+      signImg.scale(scaleFactor)
+
+      signImg.set({
+        left: (canvas.width! - signImg.getScaledWidth())-10,
+        top: canvas.height! - signImg.getScaledHeight() - 20,
+      });
+      canvas.add(signImg)
+      canvas.setActiveObject(signImg)
+      const activeObj = canvas.getActiveObject();
+                    if (activeObj) {
+                        activeObj.set({
+                        cornerColor: 'green',
+                        cornerSize: 12,
+                        transparentCorners: false,
+                        cornerStyle: 'circle',
+                    });
+                }
+      canvas.renderAll();
+      signImg.on('moving', function () {
+        signImg.setCoords();
+        const boundingRect = signImg.getBoundingRect();
+
+        if (boundingRect.left < 0) signImg.left -= boundingRect.left;
+        if (boundingRect.top < 0) signImg.top -= boundingRect.top;
+        if (boundingRect.left + boundingRect.width > canvas.width!) {
+          signImg.left -= (boundingRect.left + boundingRect.width - canvas.width!);
+        }
+        if (boundingRect.top + boundingRect.height > canvas.height!) {
+          signImg.top -= (boundingRect.top + boundingRect.height - canvas.height!);
+        }
+    });
+    
+    signImg.on('rotating', function () {
+      signImg.setCoords();
+    });
+    }
+
+  }
+
+  const addQrToCanvas=(qrUrl:string)=>{
+    const qrElement= new Image();
+    qrElement.src=qrUrl
+    qrElement.onload=function(){
+      const qrImage=new fabric.Image(qrElement,{
+        hasBorders: true,
+        hasControls: true,
+        selectable: true,
+        lockScalingFlip: true,
+      })
+
+      
+      const scaleFactor = (canvas.width! * 0.2) / qrImage.width!;
+      qrImage.scale(scaleFactor)
+
+      qrImage.set({
+        left: (canvas.width! - qrImage.getScaledWidth()) / 2,
+        top: canvas.height! - qrImage.getScaledHeight() - 20,
+      });
+      canvas.add(qrImage)
+      canvas.setActiveObject(qrImage)
+      const activeObj = canvas.getActiveObject();
+                    if (activeObj) {
+                        activeObj.set({
+                        cornerColor: 'green',
+                        cornerSize: 12,
+                        transparentCorners: false,
+                        cornerStyle: 'circle',
+                    });
+                }
+      canvas.renderAll();
+      qrImage.on('moving', function () {
+        qrImage.setCoords();
+        const boundingRect = qrImage.getBoundingRect();
+
+        if (boundingRect.left < 0) qrImage.left -= boundingRect.left;
+        if (boundingRect.top < 0) qrImage.top -= boundingRect.top;
+        if (boundingRect.left + boundingRect.width > canvas.width!) {
+            qrImage.left -= (boundingRect.left + boundingRect.width - canvas.width!);
+        }
+        if (boundingRect.top + boundingRect.height > canvas.height!) {
+            qrImage.top -= (boundingRect.top + boundingRect.height - canvas.height!);
+        }
+    });
+    
+    qrImage.on('rotating', function () {
+        qrImage.setCoords();
+    });
+    }
+  }
   const addingImage = (imageUrl: string) => {
     const imageElement = document.createElement('img')
     imageElement.src = imageUrl
@@ -178,6 +284,11 @@ export default function SidebarWithMiniPanel({ sidebarImages, canvas }) {
           <div className="bg-blue-100 w-76 h-full p-4">
             <h2 className="text-xl font-bold mb-2">Digital Signature</h2>
             <p>Signature pad or upload interface goes here.</p>
+            <img key={'sign1'} 
+            src={signurl} 
+            className="w-full max-h-40 object-contain cursor-pointer rounded border border-gray-300"
+            onClick={()=>addSignToCanvas(signurl)}
+            />
           </div>
         )
       case 'qrCode':
@@ -185,6 +296,11 @@ export default function SidebarWithMiniPanel({ sidebarImages, canvas }) {
           <div className="bg-blue-100 w-76 h-full p-4">
             <h2 className="text-xl font-bold mb-2">QR Code</h2>
             <p>QR code generation or scan option goes here.</p>
+            <img key={'qr1'} 
+            src={demoqr} 
+            className="w-full max-h-40 object-contain cursor-pointer rounded border border-gray-300"
+            onClick={()=>addQrToCanvas(demoqr)}
+            />
           </div>
         )
       default:
@@ -194,7 +310,7 @@ export default function SidebarWithMiniPanel({ sidebarImages, canvas }) {
 
   return (
     <div className="relative flex h-full bg-gray-800">
-      {/* Sidebar */}
+      
       <div className="text-white w-28 flex flex-col py-6 gap-4 px-2 h-full">
         <div className="text-2xl font-bold text-center">🌟</div>
         <nav className="flex flex-col gap-2">
