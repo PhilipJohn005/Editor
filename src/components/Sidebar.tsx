@@ -67,7 +67,7 @@ export default function SidebarWithMiniPanel({ sidebarImages, canvas }) {
     }))
   }
 
-  const handleAddText = () => {
+  const handleStaticAddText = () => {
     const text = new fabric.Textbox("Hello", {
       fill: fillColor,
       fontSize: fontSize,
@@ -79,7 +79,79 @@ export default function SidebarWithMiniPanel({ sidebarImages, canvas }) {
 
     setSelectedTextObj(text)
   }
-
+  const handleDynamicAddText = () => {
+    // Create initial text with braces
+    const initialText = "{Hello}";
+    const textObj = new fabric.Textbox(initialText, {
+      fill: fillColor,
+      fontSize: fontSize,
+      fontFamily: fontFamily,
+      editable: true,
+      width: 200,
+      left: 100,
+      top: 100,
+      hasControls: true, // Ensure scaling controls are visible
+      lockUniScaling: true, // Maintain aspect ratio when scaling
+    });
+  
+    // Store original content without braces
+    let originalContent = "Hello";
+    let isEditing = false;
+  
+    // Add to canvas
+    canvas.add(textObj);
+    canvas.setActiveObject(textObj);
+    setSelectedTextObj(textObj);
+  
+    // Handle editing events
+    textObj.on('editing:entered', () => {
+      isEditing = true;
+      textObj.set({ text: originalContent });
+      canvas.renderAll();
+    });
+  
+    textObj.on('editing:exited', () => {
+      isEditing = false;
+      originalContent = textObj.text.replace(/[{}]/g, '');
+      textObj.set({ text: `{${originalContent}}` });
+      canvas.renderAll();
+    });
+  
+    // Prevent brace input during editing
+    textObj.on('changed', () => {
+      if (isEditing) {
+        const newText = textObj.text.replace(/[{}]/g, '');
+        if (newText !== textObj.text) {
+          textObj.set({ text: newText });
+          canvas.renderAll();
+        }
+        originalContent = newText;
+      }
+    });
+  
+    // Proper deletion handling
+    canvas.on('object:removed', (options) => {
+      if (options.target === textObj) {
+        // Clean up event listeners
+        textObj.off('editing:entered');
+        textObj.off('editing:exited');
+        textObj.off('changed');
+      }
+    });
+  
+    // Handle proper scaling
+    textObj.on('scaling', () => {
+      // Adjust font size based on scale
+      const newFontSize = fontSize * textObj.scaleX;
+      textObj.set({
+        fontSize: newFontSize,
+        scaleX: 1,
+        scaleY: 1,
+        width: textObj.width * textObj.scaleX
+      });
+      canvas.renderAll();
+    });
+  };
   const handleTextPropertyChange = (property: string, value: any) => {
     if (!selectedTextObj) return
     selectedTextObj.set(property, value)
@@ -269,14 +341,14 @@ export default function SidebarWithMiniPanel({ sidebarImages, canvas }) {
         return (
           <div className="bg-blue-100 w-76 h-full p-4">
             <h2 className="text-xl font-bold mb-2">Static Text</h2>
-            <p>Static text editing UI goes here.</p>
+            <button className='bg-amber-300 cursor-pointer rounded p-4' onClick={handleStaticAddText}>Add Text</button>
           </div>
         )
       case 'dynamicText':
         return (
           <div className="bg-blue-100 w-76 h-full p-4">
             <h2 className="text-xl font-bold mb-2">Dynamic Text</h2>
-            <button className='bg-amber-300 cursor-pointer rounded p-4' onClick={handleAddText}>Add Text</button>
+            <button className='bg-amber-300 cursor-pointer rounded p-4' onClick={handleDynamicAddText}>Add Text</button>
           </div>
         )
       case 'digitalSign':
