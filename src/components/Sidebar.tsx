@@ -90,20 +90,20 @@ export default function SidebarWithMiniPanel({ sidebarImages, canvas }) {
       width: 200,
       left: 100,
       top: 100,
-      hasControls: true, // Ensure scaling controls are visible
-      lockUniScaling: true, // Maintain aspect ratio when scaling
+      hasControls: true, 
+      lockUniScaling: true, 
     });
   
-    // Store original content without braces
+    
     let originalContent = "Hello";
     let isEditing = false;
   
-    // Add to canvas
+    
     canvas.add(textObj);
     canvas.setActiveObject(textObj);
     setSelectedTextObj(textObj);
   
-    // Handle editing events
+    
     textObj.on('editing:entered', () => {
       isEditing = true;
       textObj.set({ text: originalContent });
@@ -117,7 +117,7 @@ export default function SidebarWithMiniPanel({ sidebarImages, canvas }) {
       canvas.renderAll();
     });
   
-    // Prevent brace input during editing
+    
     textObj.on('changed', () => {
       if (isEditing) {
         const newText = textObj.text.replace(/[{}]/g, '');
@@ -129,19 +129,19 @@ export default function SidebarWithMiniPanel({ sidebarImages, canvas }) {
       }
     });
   
-    // Proper deletion handling
+  
     canvas.on('object:removed', (options) => {
       if (options.target === textObj) {
-        // Clean up event listeners
+       
         textObj.off('editing:entered');
         textObj.off('editing:exited');
         textObj.off('changed');
       }
     });
   
-    // Handle proper scaling
+  
     textObj.on('scaling', () => {
-      // Adjust font size based on scale
+      
       const newFontSize = fontSize * textObj.scaleX;
       textObj.set({
         fontSize: newFontSize,
