@@ -80,7 +80,7 @@ export default function SidebarWithMiniPanel({ sidebarImages, canvas }) {
     setSelectedTextObj(text)
   }
   const handleDynamicAddText = () => {
-    // Create initial text with braces
+    
     const initialText = "{Hello}";
     const textObj = new fabric.Textbox(initialText, {
       fill: fillColor,
@@ -94,7 +94,6 @@ export default function SidebarWithMiniPanel({ sidebarImages, canvas }) {
       lockUniScaling: true, 
     });
   
-    
     let originalContent = "Hello";
     let isEditing = false;
   
@@ -117,7 +116,6 @@ export default function SidebarWithMiniPanel({ sidebarImages, canvas }) {
       canvas.renderAll();
     });
   
-    
     textObj.on('changed', () => {
       if (isEditing) {
         const newText = textObj.text.replace(/[{}]/g, '');
@@ -129,7 +127,6 @@ export default function SidebarWithMiniPanel({ sidebarImages, canvas }) {
       }
     });
   
-  
     canvas.on('object:removed', (options) => {
       if (options.target === textObj) {
        
@@ -139,9 +136,10 @@ export default function SidebarWithMiniPanel({ sidebarImages, canvas }) {
       }
     });
   
-  
+    
     textObj.on('scaling', () => {
-      
+     
+
       const newFontSize = fontSize * textObj.scaleX;
       textObj.set({
         fontSize: newFontSize,
