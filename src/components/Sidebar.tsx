@@ -94,7 +94,6 @@ export default function SidebarWithMiniPanel({ sidebarImages, canvas }) {
       lockUniScaling: true, 
     });
   
-   
     let originalContent = "Hello";
     let isEditing = false;
   
@@ -117,7 +116,6 @@ export default function SidebarWithMiniPanel({ sidebarImages, canvas }) {
       canvas.renderAll();
     });
   
-   
     textObj.on('changed', () => {
       if (isEditing) {
         const newText = textObj.text.replace(/[{}]/g, '');
@@ -141,6 +139,7 @@ export default function SidebarWithMiniPanel({ sidebarImages, canvas }) {
     
     textObj.on('scaling', () => {
      
+
       const newFontSize = fontSize * textObj.scaleX;
       textObj.set({
         fontSize: newFontSize,
