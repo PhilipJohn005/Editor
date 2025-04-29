@@ -1,135 +1,149 @@
 import * as fabric from 'fabric';
-import React,{useEffect, useRef} from 'react';
+import React, { useEffect, useRef } from 'react';
 
-const ImageComponent = ({canvas,check,s,addImageToSide}) => {
-    const inputRef = useRef<HTMLInputElement | null>(null);
+interface ImageComponentProps {
+  canvas: fabric.Canvas;
+  check: boolean;
+  s: (value: boolean) => void;
+  addImageToSide: (url: string) => void;
+}
 
-    useEffect(()=>{
-        if(check && inputRef.current){
-            inputRef.current.value='';
-            s(false);
+const ImageComponent: React.FC<ImageComponentProps> = ({ canvas, check, s, addImageToSide }) => {
+  const inputRef = useRef<HTMLInputElement | null>(null);
+
+  useEffect(() => {
+    if (check && inputRef.current) {
+      inputRef.current.value = '';
+      s(false);
+    }
+  }, [check, s]);
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const imgFile = e.target.files?.[0];
+
+  if (!imgFile) {
+    console.warn("No image selected.");
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.readAsDataURL(imgFile); 
+
+  reader.onload = () => {
+    const imageUrl = reader.result as string; 
+    addImageToSide(imageUrl);  
+
+    console.log("Base64 Image URL loaded:", imageUrl);
+
+    const img = new Image();
+    img.src = imageUrl;  
+
+    img.onload = () => {
+      const fabricImage = new fabric.Image(img, {
+        hasBorders: true,
+        hasControls: true,
+        selectable: true,
+        lockScalingFlip: true,
+      });
+
+
+        const scaleFactor = Math.min(
+          (canvas.width! * 0.8) / fabricImage.width!,
+          (canvas.height! * 0.8) / fabricImage.height!
+        );
+        fabricImage.scale(scaleFactor);
+
+        fabricImage.set({
+          left: (canvas.width! - fabricImage.width! * scaleFactor) / 2,
+          top: (canvas.height! - fabricImage.height! * scaleFactor) / 2,
+        });
+
+        canvas.add(fabricImage);
+        canvas.setActiveObject(fabricImage);
+
+        const activeObj = canvas.getActiveObject();
+        if (activeObj) {
+          activeObj.set({
+            cornerColor: 'green',
+            cornerSize: 12,
+            transparentCorners: false,
+            cornerStyle: 'circle',
+          });
         }
-    },[check,s])
-    
-    const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const imgObj = e.target.files?.[0];
-        const reader = new FileReader();
-        
-        if (imgObj) {
-            reader.readAsDataURL(imgObj);
-        }
 
-        reader.onload = (e) => {
-            const imageUrl = e.target?.result as string;
+        canvas.renderAll();
 
-            addImageToSide(imageUrl);
+        let prevLeft = 0, prevTop = 0, prevScaleX = 1, prevScaleY = 1;
 
-            const imageElement = document.createElement('img');
-            imageElement.src = imageUrl;
+        canvas.on('object:scaling', function (e) {
+          const obj = e.target;
+          if (!obj) return;
+          obj.setCoords();
+          const br = obj.getBoundingRect();
 
-            imageElement.onload = function () {
-                const image = new fabric.Image(imageElement, {
-                    hasBorders: true,
-                    hasControls: true,
-                    selectable: true,
-                    lockScalingFlip: true, 
-                });
+          if (br.left < 0 || br.top < 0 || br.left + br.width > canvas.width! || br.top + br.height > canvas.height!) {
+            obj.set({
+              left: prevLeft,
+              top: prevTop,
+              scaleX: prevScaleX,
+              scaleY: prevScaleY
+            });
+          } else {
+            prevLeft = obj.left!;
+            prevTop = obj.top!;
+            prevScaleX = obj.scaleX!;
+            prevScaleY = obj.scaleY!;
+          }
+        });
 
-                const scaleFactor = Math.min(
-                    (canvas.width! * 0.8) / image.width!,
-                    (canvas.height! * 0.8) / image.height!
-                );
-                image.scale(scaleFactor);
+        fabricImage.on('moving', () => {
+          fabricImage.setCoords();
+          const bounds = fabricImage.getBoundingRect();
 
-                
-                image.set({
-                    left: (canvas.width! - image.width! * scaleFactor) / 2,
-                    top: (canvas.height! - image.height! * scaleFactor) / 2,
-                });
+          if (bounds.left < 0) fabricImage.left = 0;
+          if (bounds.top < 0) fabricImage.top = 0;
+          if (bounds.left + bounds.width > canvas.width!) {
+            fabricImage.left = canvas.width! - bounds.width;
+          }
+          if (bounds.top + bounds.height > canvas.height!) {
+            fabricImage.top = canvas.height! - bounds.height;
+          }
+        });
 
-                canvas.add(image);
-                canvas.setActiveObject(image);
-                const activeObj = canvas.getActiveObject();
-                    if (activeObj) {
-                        activeObj.set({
-                        cornerColor: 'green',
-                        cornerSize: 12,
-                        transparentCorners: false,
-                        cornerStyle: 'circle',
-                    });
-                }
-                canvas.renderAll();
-                
-                var left1 = 0;
-                var top1 = 0 ;
-                var scale1x = 0 ;    
-                var scale1y = 0 ;    
-                var width1 = 0 ;    
-                var height1 = 0 ;
-                
-                        
-                canvas.on('object:scaling', function (e){
-                    var obj = e.target;
-                    obj.setCoords();
-                    var brNew = obj.getBoundingRect();
-                    
-                    if (((brNew.width+brNew.left)>=obj.canvas.width) || ((brNew.height+brNew.top)>=obj.canvas.height) || ((brNew.left<0) || (brNew.top<0))) {
-                    obj.left = left1;
-                    obj.top=top1;
-                    obj.scaleX=scale1x;
-                    obj.scaleY=scale1y;
-                    obj.width=width1;
-                    obj.height=height1;
-                }
-                    else{    
-                    left1 =obj.left;
-                    top1 =obj.top;
-                    scale1x = obj.scaleX;
-                    scale1y=obj.scaleY;
-                    width1=obj.width;
-                    height1=obj.height;
-                    }
-                });
-                
-                image.on('moving', function () {
-                    image.setCoords();
-                    const boundingRect = image.getBoundingRect();
+        fabricImage.on('rotating', () => {
+          fabricImage.setCoords();
+        });
 
-                    if (boundingRect.left < 0) image.left -= boundingRect.left;
-                    if (boundingRect.top < 0) image.top -= boundingRect.top;
-                    if (boundingRect.left + boundingRect.width > canvas.width!) {
-                        image.left -= (boundingRect.left + boundingRect.width - canvas.width!);
-                    }
-                    if (boundingRect.top + boundingRect.height > canvas.height!) {
-                        image.top -= (boundingRect.top + boundingRect.height - canvas.height!);
-                    }
-                });
-                
-                image.on('rotating', function () {
-                    image.setCoords();
-                });
-            };
-        };
+        console.log("Image added to canvas");
+      };
+
+      img.onerror = () => {
+        console.error("Failed to load image element.");
+      };
     };
 
-    return (
-        <div>
-            <input
-                type="file"
-                accept="image/*"
-                ref={inputRef}
-                style={{
-                    position: 'absolute',
-                    top: '10%',
-                    left: '40%',
-                    backgroundColor: 'blue',
-                    transform: 'translateZ(0)'
-                }}
-                onChange={handleImageUpload}
+    reader.onerror = () => {
+      console.error("Failed to read the image file.");
+    };
+  };
 
-            />
-        </div>
-    );
+  return (
+    <div>
+      <input
+        type="file"
+        accept="image/*"
+        ref={inputRef}
+        onChange={handleImageUpload}
+        style={{
+          position: 'absolute',
+          top: '10%',
+          left: '40%',
+          backgroundColor: 'blue',
+          transform: 'translateZ(0)',
+        }}
+      />
+    </div>
+  );
 };
 
 export default ImageComponent;

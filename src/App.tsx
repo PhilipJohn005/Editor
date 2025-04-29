@@ -6,6 +6,8 @@ import Image from './components/Image';
 import DeleteComponent from './components/DeleteComponent';
 import Sidebar from './components/Sidebar';
 import { handleMoving, clearGuideLines } from './components/Snapping';
+import LayerList from './components/LayerList';
+
 
 const App = () => {
   const location = useLocation();
@@ -19,6 +21,8 @@ const App = () => {
   const [guideLines, setGuideLines] = useState([]);
   const [sidebarImages, setSidebarImages] = useState<string[]>([]);
   const [zoomLevel, setZoomLevel] = useState(1);
+
+  
 
   useEffect(() => {
     if (!width || !height) {
@@ -46,6 +50,8 @@ const App = () => {
       };
     }
   }, [width, height]);
+
+
 
   const handleZoom = (direction: 'in' | 'out') => {
     const zoomFactor = direction === 'in' ? 1.1 : 0.9;
@@ -129,6 +135,18 @@ const App = () => {
         >
           Add Rectangle
         </button>
+        <button
+          onClick={() => {
+            if (canvas) {
+              const json = canvas.toJSON();
+              console.log(JSON.stringify(json, null, 2));
+            }
+          }}
+          className="absolute bg-green-600 px-4 py-2 text-white rounded"
+          style={{ bottom: '40%', right: '20%' }}
+        >
+          Log JSON
+        </button>
   
         <div className="absolute top-4 right-4">
           <button 
@@ -148,16 +166,19 @@ const App = () => {
           </div>
         </div>
   
-        <Image
-          canvas={canvas}
-          check={check}
-          s={setCheck}
-          addImageToSide={handleAddSidebarImage}
-        />
+        {canvas && (
+          <Image
+            canvas={canvas}
+            check={check}
+            s={setCheck}
+            addImageToSide={handleAddSidebarImage}
+          />
+        )}
   
         <div className="absolute right-1/5 top-1/5">
           <DeleteComponent canvas={canvas} canvasRef={canvasRef} onDelete={handleFlush} />
         </div>
+        <LayerList canva={canvas} />
       </div>
     </div>
   );
