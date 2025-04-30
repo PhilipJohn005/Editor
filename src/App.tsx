@@ -8,7 +8,6 @@ import Sidebar from './components/Sidebar';
 import { handleMoving, clearGuideLines } from './components/Snapping';
 import LayerList from './components/LayerList';
 
-
 const App = () => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -22,13 +21,18 @@ const App = () => {
   const [sidebarImages, setSidebarImages] = useState<string[]>([]);
   const [zoomLevel, setZoomLevel] = useState(1);
 
-  
-
   useEffect(() => {
     if (!width || !height) {
       navigate('/');
       return;
     }
+
+    fabric.Object.prototype.toObject = (function(toObject) {
+      return function(propertiesToInclude) {
+        propertiesToInclude = (propertiesToInclude || []).concat('originalFilePath');
+        return toObject.call(this, propertiesToInclude);
+      };
+    })(fabric.Object.prototype.toObject);
 
     if (canvasRef.current) {
       const initCanvas = new Canvas(canvasRef.current, {
@@ -51,13 +55,10 @@ const App = () => {
     }
   }, [width, height]);
 
-
-
   const handleZoom = (direction: 'in' | 'out') => {
     const zoomFactor = direction === 'in' ? 1.1 : 0.9;
     const newZoom = zoomLevel * zoomFactor;
     
-    // Limit zoom levels (optional)
     if (newZoom > 3 || newZoom < 0.5) return;
     
     setZoomLevel(newZoom);
@@ -112,7 +113,6 @@ const App = () => {
 
   return (
     <div className="bg-gray-200 min-h-screen flex"> 
-      
       <div className="min-h-screen flex"> 
         <Sidebar sidebarImages={sidebarImages} canvas={canvas} />
       </div>
@@ -128,11 +128,7 @@ const App = () => {
 
         </div>
   
-        <button
-          onClick={addRectangle}
-          className="absolute bg-red-500 px-4 py-2 rounded"
-          style={{ bottom: '50%', right: '20%' }}
-        >
+        <button onClick={addRectangle} className="absolute bg-red-500 px-4 py-2 rounded" style={{ bottom: '50%', right: '20%' }}>
           Add Rectangle
         </button>
         <button
@@ -149,36 +145,25 @@ const App = () => {
         </button>
   
         <div className="absolute top-4 right-4">
-          <button 
-            onClick={() => handleZoom('in')} 
-            className="bg-blue-500 text-white"
-          >
+          <button  onClick={() =>handleZoom('in')} className="bg-blue-500 text-white">
             Zoom In
           </button>
-          <button 
-            onClick={() => handleZoom('out')} 
-            className="bg-blue-500 text-white"
-          >
+          <button onClick={() =>handleZoom('out')} className="bg-blue-500 text-white">
             Zoom Out 
           </button>
           <div className="text-center text-sm">
-            Zoom: {Math.round(zoomLevel * 100)}%
+            Zoom: {Math.round(zoomLevel*100)}%
           </div>
         </div>
   
         {canvas && (
-          <Image
-            canvas={canvas}
-            check={check}
-            s={setCheck}
-            addImageToSide={handleAddSidebarImage}
-          />
+          <Image canvas={canvas} check={check} s={setCheck} addImageToSide={handleAddSidebarImage}/>
         )}
   
         <div className="absolute right-1/5 top-1/5">
           <DeleteComponent canvas={canvas} canvasRef={canvasRef} onDelete={handleFlush} />
         </div>
-        <LayerList canva={canvas} />
+        <LayerList canva={canvas}/>
       </div>
     </div>
   );
