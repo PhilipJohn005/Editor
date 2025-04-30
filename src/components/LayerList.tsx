@@ -1,11 +1,10 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react';
 import * as fabric from 'fabric';
 
 declare module 'fabric' {
   interface Canvas {
     updateZIndices: () => void;
   }
-
   interface Object {
     zIndex?: number;
     id?: string;
@@ -17,56 +16,38 @@ interface LayerListProps {
 }
 
 const LayerList: React.FC<LayerListProps> = ({ canva }) => {
-  const [layers, setLayers] = useState<{ id: string; zIndex: number; type: string }[]>([]);
   const [selectedLayer, setSelectedLayer] = useState<string | null>(null);
+  const [buttonPosition, setButtonPosition] = useState<{ top: number; left: number } | null>(null);
 
+  const buttonContainerRef = useRef<HTMLDivElement>(null);
 
-    const moveSelectedLayer=(direction)=>{
-        if(!selectedLayer)return;
+  const moveSelectedLayer = (direction: 'up' | 'down') => {
+    if (!selectedLayer || !canva) return;
 
-        const objects=canva?.getObjects();
-        const object=objects?.find((obj=>obj.id===selectedLayer));
+    const objects = canva.getObjects();
+    const object = objects.find((obj) => obj.id === selectedLayer);
+    if (!object) return;
 
-        if(object){
-            const currentIndex=objects?.indexOf(object);
+    const currentIndex = objects.indexOf(object);
 
-            if(direction==="up" && currentIndex !== undefined && currentIndex < (objects?.length ?? 0) - 1){
-                const temp=(objects ?? [])[currentIndex];
-                (objects ?? [])[currentIndex]=(objects ?? [])[currentIndex+1];
-                (objects ?? [])[currentIndex+1]=temp
-            }else if(direction==="down" && currentIndex!==undefined && currentIndex>0){
-                const temp=(objects ?? [])[currentIndex];
-                (objects ?? [])[currentIndex]=(objects ?? [])[currentIndex-1];
-                (objects ?? [])[currentIndex-1]=temp
-            }
-
-
-            const backgroudColour=canva?.backgroundColor;
-
-            canva.clear();
-            objects?.forEach((obj)=>canva?.add(obj));
-
-            if (canva) {
-                canva.backgroundColor = backgroudColour ?? '';
-            }
-
-            canva?.renderAll();
-
-            objects?.forEach((obj,index)=>{
-                obj.zIndex=index
-            })
-            canva?.setActiveObject(object);
-
-            canva?.renderAll();
-
-            updateLayers();
-        }
+    if (direction === 'up' && currentIndex < objects.length - 1) {
+      [objects[currentIndex], objects[currentIndex + 1]] = [objects[currentIndex + 1], objects[currentIndex]];
+    } else if (direction === 'down' && currentIndex > 0) {
+      [objects[currentIndex], objects[currentIndex - 1]] = [objects[currentIndex - 1], objects[currentIndex]];
     }
+
+    canva.remove(...objects);
+    objects.forEach((obj) => canva.add(obj));
+
+    canva.updateZIndices();
+    canva.setActiveObject(object);
+    canva.renderAll();
+    updateButtonPosition(object);
+  };
 
   const addIdToObject = (object: fabric.Object) => {
     if (!object.id) {
-      const timestamp = new Date().getTime();
-      object.id = `${object.type}_${timestamp}`;
+      object.id = `${object.type}_${Date.now()}`;
     }
   };
 
@@ -78,22 +59,18 @@ const LayerList: React.FC<LayerListProps> = ({ canva }) => {
     });
   };
 
-  const updateLayers = () => {
-    if (canva) {
-      canva.updateZIndices();
-      const objects = canva.getObjects()
-        .filter(
-          (obj) =>
-            obj.id &&
-            !obj.id.startsWith("vertical-") &&
-            !obj.id.startsWith("horizontal-")
-        )
-        .map((obj) => ({
-          id: obj.id!,
-          zIndex: obj.zIndex!,
-          type: obj.type
-        }));
-      setLayers([...objects].reverse());
+  const updateButtonPosition = (object: fabric.Object) => {
+    if (!canva || !object) return;
+
+    const bound = object.getBoundingRect();
+    const canvasEl = canva.getElement();
+
+    if (canvasEl instanceof HTMLCanvasElement) {
+      const rect = canvasEl.getBoundingClientRect();
+      setButtonPosition({
+        top: rect.top + bound.top - 40, 
+        left: rect.left + bound.left + bound.width / 2 - 30, 
+      });
     }
   };
 
@@ -101,57 +78,64 @@ const LayerList: React.FC<LayerListProps> = ({ canva }) => {
     const selectedObject = e.selected ? e.selected[0] : null;
     if (selectedObject) {
       setSelectedLayer(selectedObject.id || null);
+      updateButtonPosition(selectedObject);
     } else {
       setSelectedLayer(null);
-    }
-  };
-
-  const selectedLayerInCanvas = (layerId: string) => {
-    const object = canva?.getObjects().find((obj) => obj.id === layerId);
-    if (object && canva) {
-      canva.setActiveObject(object);
-      canva.renderAll();
+      setButtonPosition(null);
     }
   };
 
   useEffect(() => {
-    if (canva) {
-      canva.on("object:added", updateLayers);
-      canva.on("object:removed", updateLayers);
-      canva.on("object:modified", updateLayers);
-      canva.on("selection:created", handleObjectSelected);
-      canva.on("selection:updated", handleObjectSelected);
-      canva.on("selection:cleared", () => setSelectedLayer(null));
+    if (!canva) return;
 
-      updateLayers();
+    const updatePosition = () => {
+      const active = canva.getActiveObject();
+      if (active) updateButtonPosition(active);
+    };
 
-      return () => {
-        canva.off("object:added", updateLayers);
-        canva.off("object:removed", updateLayers);
-        canva.off("object:modified", updateLayers);
-        canva.off("selection:created", handleObjectSelected);
-        canva.off("selection:updated", handleObjectSelected);
-        canva.off("selection:cleared", () => setSelectedLayer(null));
-      };
-    }
+    canva.on('object:added', () => canva.updateZIndices());
+    canva.on('object:modified', updatePosition);
+    canva.on('object:moving', updatePosition);
+    canva.on('selection:created', handleObjectSelected);
+    canva.on('selection:updated', handleObjectSelected);
+    canva.on('selection:cleared', () => {
+      setSelectedLayer(null);
+      setButtonPosition(null);
+    });
+
+    return () => {
+      canva.off('object:added');
+      canva.off('object:modified');
+      canva.off('object:moving');
+      canva.off('selection:created');
+      canva.off('selection:updated');
+      canva.off('selection:cleared');
+    };
   }, [canva]);
 
   return (
-    layers.length>0 && (
-    <div className='bg-gray-400 w-32 relative m-5'>
-        <div className='p-1 flex flex-row justify-between items-center'>
-            <button className=' bg-green-400 rounded p-1 cursor-pointer' onClick={()=>moveSelectedLayer("up")} disabled={!selectedLayer || layers[0]?.id===selectedLayer} >up</button>
-            <button className='bg-amber-300 rounded p-1 cursor-pointer' onClick={()=>moveSelectedLayer("down")} disabled={!selectedLayer || layers[layers.length-1]?.id===selectedLayer}>down</button>
+    <>
+      {buttonPosition && selectedLayer && (
+        <div
+          ref={buttonContainerRef}
+          className='absolute z-50 flex gap-2'
+          style={{ top: buttonPosition.top, left: buttonPosition.left }}
+        >
+          <button
+            className='bg-green-500 text-white px-2 py-1 rounded shadow'
+            onClick={() => moveSelectedLayer('up')}
+          >
+            Up
+          </button>
+          <button
+            className='bg-yellow-500 text-white px-2 py-1 rounded shadow'
+            onClick={() => moveSelectedLayer('down')}
+          >
+            Dwon
+          </button>
         </div>
-
-      <ul className='p-2 space-y-2'>
-        {layers.map((layer) => (
-          <li key={layer.id} onClick={() => selectedLayerInCanvas(layer.id)} className='cursor-pointer border border-white p-2'>
-            {layer.type} (Z: {layer.zIndex})
-          </li>
-        ))}
-      </ul>
-    </div>)
+      )}
+    </>
   );
 };
 

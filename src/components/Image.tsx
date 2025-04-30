@@ -21,31 +21,31 @@ const ImageComponent: React.FC<ImageComponentProps> = ({ canvas, check, s, addIm
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const imgFile = e.target.files?.[0];
 
-  if (!imgFile) {
-    console.warn("No image selected.");
-    return;
-  }
+    if (!imgFile) {
+      console.warn("No image selected.");
+      return;
+    }
 
-  const reader = new FileReader();
-  reader.readAsDataURL(imgFile); 
+    const reader = new FileReader();
+    reader.readAsDataURL(imgFile); 
 
-  reader.onload = () => {
-    const imageUrl = reader.result as string; 
-    addImageToSide(imageUrl);  
+    reader.onload = () => {
+      const imageUrl = reader.result as string; 
+      addImageToSide(imageUrl);  
 
-    console.log("Base64 Image URL loaded:", imageUrl);
+      console.log("Base64 Image URL loaded:", imageUrl);
 
-    const img = new Image();
-    img.src = imageUrl;  
+      const img = new Image();
+      img.src = imageUrl;  
 
-    img.onload = () => {
-      const fabricImage = new fabric.Image(img, {
-        hasBorders: true,
-        hasControls: true,
-        selectable: true,
-        lockScalingFlip: true,
-      });
-
+      img.onload = () => {
+        const fabricImage = new fabric.Image(img, {
+          hasBorders: true,
+          hasControls: true,
+          selectable: true,
+          lockScalingFlip: true,
+          originalFilePath: (imgFile as any).path || imgFile.name 
+        });
 
         const scaleFactor = Math.min(
           (canvas.width! * 0.8) / fabricImage.width!,
