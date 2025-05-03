@@ -96,22 +96,46 @@ const ImageComponent: React.FC<ImageComponentProps> = ({ canvas, check, s, addIm
           }
         });
 
-        fabricImage.on('moving', () => {
-          fabricImage.setCoords();
-          const bounds = fabricImage.getBoundingRect();
+        canvas.on('object:moving', function(e){
+          const obj = e.target;
+          if (!obj) return;
+          obj.setCoords();
+          const br = obj.getBoundingRect();
 
-          if (bounds.left < 0) fabricImage.left = 0;
-          if (bounds.top < 0) fabricImage.top = 0;
-          if (bounds.left + bounds.width > canvas.width!) {
-            fabricImage.left = canvas.width! - bounds.width;
-          }
-          if (bounds.top + bounds.height > canvas.height!) {
-            fabricImage.top = canvas.height! - bounds.height;
+          if (br.left < 0 || br.top < 0 || br.left + br.width > canvas.width! || br.top + br.height > canvas.height!) {
+            obj.set({
+              left: prevLeft,
+              top: prevTop,
+              scaleX: prevScaleX,
+              scaleY: prevScaleY
+            });
+          } else {
+            prevLeft = obj.left!;
+            prevTop = obj.top!;
+            prevScaleX = obj.scaleX!;
+            prevScaleY = obj.scaleY!;
           }
         });
 
-        fabricImage.on('rotating', () => {
-          fabricImage.setCoords();
+        canvas.on('object:rotating', function(e){
+          const obj = e.target;
+          if (!obj) return;
+          obj.setCoords();
+          const br = obj.getBoundingRect();
+
+          if (br.left < 0 || br.top < 0 || br.left + br.width > canvas.width! || br.top + br.height > canvas.height!) {
+            obj.set({
+              left: prevLeft,
+              top: prevTop,
+              scaleX: prevScaleX,
+              scaleY: prevScaleY
+            });
+          } else {
+            prevLeft = obj.left!;
+            prevTop = obj.top!;
+            prevScaleX = obj.scaleX!;
+            prevScaleY = obj.scaleY!;
+          }
         });
 
         console.log("Image added to canvas");
@@ -134,6 +158,7 @@ const ImageComponent: React.FC<ImageComponentProps> = ({ canvas, check, s, addIm
         accept="image/*"
         ref={inputRef}
         onChange={handleImageUpload}
+        className='cursor-pointer'
         style={{
           position: 'absolute',
           top: '10%',
