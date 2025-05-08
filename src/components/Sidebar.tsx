@@ -73,6 +73,8 @@ export default function SidebarWithMiniPanel({ sidebarImages, canvas }) {
       fontSize: fontSize,
       fontFamily: fontFamily,
       editable: true,
+      id: crypto.randomUUID(),
+      customType: "static",
     })
     canvas.add(text)
     canvas.setActiveObject(text)
@@ -92,6 +94,8 @@ export default function SidebarWithMiniPanel({ sidebarImages, canvas }) {
       top: 100,
       hasControls: true, 
       lockUniScaling: true, 
+      id: crypto.randomUUID(),
+      customType: "dynamic",
     });
   
     let originalContent = "Hello";
@@ -167,6 +171,7 @@ export default function SidebarWithMiniPanel({ sidebarImages, canvas }) {
         hasControls: true,
         selectable: true,
         lockScalingFlip: true,
+        id: crypto.randomUUID(),
       })
 
       const scaleFactor = (canvas.width! * 0.2) / signImg.width!;
@@ -219,6 +224,7 @@ export default function SidebarWithMiniPanel({ sidebarImages, canvas }) {
         hasControls: true,
         selectable: true,
         lockScalingFlip: true,
+        id: crypto.randomUUID(),
       })
 
       

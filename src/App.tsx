@@ -8,6 +8,7 @@ import Sidebar from './components/Sidebar';
 import { handleMoving, clearGuideLines } from './components/Snapping';
 import LayerList from './components/LayerList';
 
+
 const App = () => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -55,8 +56,17 @@ const App = () => {
     }
   }, [width, height]);
 
-  const handleZoom = (direction: 'in' | 'out') => {
-    const zoomFactor = direction === 'in' ? 1.1 : 0.9;
+  useEffect(() => {
+    const originalToObject = fabric.Object.prototype.toObject;
+    fabric.Object.prototype.toObject = function (propertiesToInclude = []) {
+      return originalToObject.call(this, [...propertiesToInclude, 'id', 'customType', 'fieldName', 'certificateId']);
+    };
+  
+  
+  }, []);
+
+  const handleZoom =(direction:'in'|'out') => {
+    const zoomFactor=direction==='in'?1.1:0.9;
     const newZoom = zoomLevel * zoomFactor;
     
     if (newZoom > 3 || newZoom < 0.5) return;

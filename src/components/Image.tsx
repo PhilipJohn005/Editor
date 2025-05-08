@@ -1,5 +1,6 @@
-import * as fabric from 'fabric';
 import React, { useEffect, useRef } from 'react';
+import * as fabric from 'fabric';
+
 
 interface ImageComponentProps {
   canvas: fabric.Canvas;
@@ -44,7 +45,8 @@ const ImageComponent: React.FC<ImageComponentProps> = ({ canvas, check, s, addIm
           hasControls: true,
           selectable: true,
           lockScalingFlip: true,
-          originalFilePath: (imgFile as any).path || imgFile.name 
+          originalFilePath: (imgFile as any).path || imgFile.name,
+          id:crypto.randomUUID(),
         });
 
         const scaleFactor = Math.min(
@@ -137,18 +139,10 @@ const ImageComponent: React.FC<ImageComponentProps> = ({ canvas, check, s, addIm
             prevScaleY = obj.scaleY!;
           }
         });
-
-        console.log("Image added to canvas");
       };
-
-      img.onerror = () => {
-        console.error("Failed to load image element.");
-      };
+ 
     };
 
-    reader.onerror = () => {
-      console.error("Failed to read the image file.");
-    };
   };
 
   return (
