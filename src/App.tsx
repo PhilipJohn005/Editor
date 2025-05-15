@@ -7,7 +7,7 @@ import DeleteComponent from './components/DeleteComponent';
 import Sidebar from './components/Sidebar';
 import { handleMoving, clearGuideLines } from './components/Snapping';
 import LayerList from './components/LayerList';
-
+import Export from './components/Export';
 
 const App = () => {
   const location = useLocation();
@@ -153,6 +153,7 @@ const App = () => {
         >
           Log JSON
         </button>
+        <Export canvas={canvas} />
   
         <div className="absolute top-4 right-4">
           <button  onClick={() =>handleZoom('in')} className="bg-blue-500 text-white">
