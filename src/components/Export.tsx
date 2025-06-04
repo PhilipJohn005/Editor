@@ -2,9 +2,9 @@ import React from 'react';
 import { jsPDF } from 'jspdf';
 import canvasJson from '../Sample-json.json';
 
-const Export = ({canvas}) => {
+const Export = ({ canvas }) => {
   const handleExport = async () => {
-    try {
+    /*try {
       const objects = canvasJson.objects;
 
       if (!objects || !Array.isArray(objects)) {
@@ -12,14 +12,31 @@ const Export = ({canvas}) => {
         return;
       }
 
+      // Canvas dimensions (should match your actual canvas size)
+      const canvasWidth = 500;
+      const canvasHeight = 500;
+
+      // Create PDF document
       const doc = new jsPDF({
         orientation: 'portrait',
         unit: 'mm',
       });
 
-      const pxToMm = 0.264583;
-      const dpiRatio = window.devicePixelRatio || 1;
+      // Get PDF page dimensions
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const pageHeight = doc.internal.pageSize.getHeight();
 
+      // Calculate scaling factor to fit canvas content on PDF page
+      const scaleFactor = Math.min(
+        (pageWidth - 20) / canvasWidth,
+        (pageHeight - 20) / canvasHeight
+      );
+
+      // Center the content on the page
+      const offsetX = (pageWidth - canvasWidth * scaleFactor) / 2;
+      const offsetY = (pageHeight - canvasHeight * scaleFactor) / 2;
+
+      // Process each object in the canvas
       for (const obj of objects) {
         const {
           left = 0,
@@ -31,135 +48,198 @@ const Export = ({canvas}) => {
           scaleY = 1,
           originX = 'left',
           originY = 'top',
-          type
+          type,
+          src,
         } = obj;
 
-        const actualWidth = width * scaleX;
-        const actualHeight = height * scaleY;
+        // Only process image objects with valid source
+        if (type.toLowerCase() !== 'image' || !src) continue;
 
-        let x = left * pxToMm;
-        let y = top * pxToMm;
-        const w = actualWidth * pxToMm;
-        const h = actualHeight * pxToMm;
+        try {
+          const imgElement = await loadImageElement(src);
 
-        if (originX === 'center') x -= w / 2;
-        if (originY === 'center') y -= h / 2;
+          // Calculate actual dimensions considering scale
+          const actualWidth = width * scaleX;
+          const actualHeight = height * scaleY;
 
-        if (type.toLowerCase() === 'image') {
-          try {
-            if (obj.src) {
-              const imageData = await loadImageFromSrc(obj.src);
+          // Convert dimensions to mm
+          const w = actualWidth * scaleFactor;
+          const h = actualHeight * scaleFactor;
 
-              if (angle !== 0) {
-                const canvas = document.createElement('canvas');
-                const ctx = canvas.getContext('2d');
-                if (ctx) {
-                  const rad = angle * Math.PI / 180;
-                  const sin = Math.abs(Math.sin(rad));
-                  const cos = Math.abs(Math.cos(rad));
-                  const canvasWidth = (w * cos + h * sin);
-                  const canvasHeight = (w * sin + h * cos);
+          // Calculate base position (top-left corner) in mm
+          let x = left * scaleFactor + offsetX;
+          let y = top * scaleFactor + offsetY;
 
-                  // Scale canvas for better image quality
-                  canvas.width = canvasWidth * dpiRatio;
-                  canvas.height = canvasHeight * dpiRatio;
-                  canvas.style.width = `${canvasWidth}mm`;
-                  canvas.style.height = `${canvasHeight}mm`;
-                  
-                  ctx.scale(dpiRatio, dpiRatio);
-                  ctx.imageSmoothingQuality = 'high';
+          // Adjust for origin point
+          if (originX === 'center') x -= w / 2;
+          else if (originX === 'right') x -= w;
 
-                  // Fill background and rotate
-                  ctx.fillStyle = 'white';
-                  ctx.fillRect(0, 0, canvasWidth, canvasHeight);
-                  ctx.translate(canvasWidth / 2, canvasHeight / 2);
-                  ctx.rotate(rad);
-                  
-                  // Draw image with original dimensions
-                  ctx.drawImage(
-                    imageData, 
-                    -w/2, 
-                    -h/2, 
-                    w, 
-                    h
-                  );
+          if (originY === 'center') y -= h / 2;
+          else if (originY === 'bottom') y -= h;
 
-                  // Calculate precise position adjustments
-                  const xOffset = originX === 'center' ? 0 : (canvasWidth - w)/2;
-                  const yOffset = originY === 'center' ? 0 : (canvasHeight - h)/2;
+          if (angle !== 0) {
+            // For rotated images, we need to create an offscreen canvas
+            const rad = (angle * Math.PI) / 180;
+            const sin = Math.sin(rad);
+            const cos = Math.cos(rad);
+            
+            // Calculate rotated dimensions
+            const rotatedWidth = Math.abs(actualWidth * cos) + Math.abs(actualHeight * sin);
+            const rotatedHeight = Math.abs(actualWidth * sin) + Math.abs(actualHeight * cos);
 
-                  doc.addImage(
-                    canvas.toDataURL('image/jpeg', 1.0), // Maximum quality
-                    'JPEG', 
-                    x - xOffset, 
-                    y - yOffset, 
-                    canvasWidth,
-                    canvasHeight
-                  );
-                }
-              } else {
-                // For non-rotated images, maintain original quality
-                doc.addImage(
-                  imageData, 
-                  'JPEG', 
-                  x, 
-                  y, 
-                  w, 
-                  h,
-                  undefined,
-                  'FAST',
-                  0
-                );
-              }
-            }
-          } catch (err) {
-            console.error('Image load error:', err);
+            // Create offscreen canvas
+            const offscreenCanvas = document.createElement('canvas');
+            offscreenCanvas.width = Math.ceil(rotatedWidth);
+            offscreenCanvas.height = Math.ceil(rotatedHeight);
+
+            const ctx = offscreenCanvas.getContext('2d', { alpha: true });
+            if (!ctx) throw new Error('Failed to get canvas context');
+
+            ctx.clearRect(0, 0, offscreenCanvas.width, offscreenCanvas.height);
+
+            // Calculate the center point of the rotated image
+            const centerX = rotatedWidth / 2;
+            const centerY = rotatedHeight / 2;
+
+            // Draw rotated image to offscreen canvas
+            ctx.save();
+            ctx.translate(centerX, centerY);
+            ctx.rotate(rad);
+            ctx.drawImage(
+              imgElement,
+              -actualWidth / 2,
+              -actualHeight / 2,
+              actualWidth,
+              actualHeight
+            );
+            ctx.restore();
+
+            // Calculate the origin offset based on the origin point
+            let originOffsetX = 0;
+            let originOffsetY = 0;
+
+            if (originX === 'center') originOffsetX = w / 2;
+            else if (originX === 'right') originOffsetX = w;
+
+            if (originY === 'center') originOffsetY = h / 2;
+            else if (originY === 'bottom') originOffsetY = h;
+
+            // Calculate the rotated position of the origin point
+            const rotatedOriginX = x + originOffsetX;
+            const rotatedOriginY = y + originOffsetY;
+
+            // The final position needs to account for the rotation center
+            const finalX = rotatedOriginX - (rotatedWidth * scaleFactor / 2);
+            const finalY = rotatedOriginY - (rotatedHeight * scaleFactor / 2);
+
+            // Add rotated image to PDF
+            doc.addImage(
+              offscreenCanvas.toDataURL('image/png'),
+              'PNG',
+              finalX,
+              finalY,
+              rotatedWidth * scaleFactor,
+              rotatedHeight * scaleFactor,
+              undefined,
+              'FAST'
+            );
+          } else {
+            // For non-rotated images, simply add them to the PDF
+            const imgData = await imageToDataURL(imgElement);
+            doc.addImage(
+              imgData,
+              'PNG',
+              x,
+              y,
+              w,
+              h,
+              undefined,
+              'FAST'
+            );
           }
+        } catch (err) {
+          console.error('Error processing image:', err);
         }
       }
 
-      doc.save('canvas_from_json.pdf');
+      // Save the PDF
+      doc.save('canvas_export.pdf');
     } catch (error) {
       console.error('Export failed:', error);
+    }*/
+
+       const originalCanvas = canvas.getElement();
+    const originalWidth = originalCanvas.width;
+    const originalHeight = originalCanvas.height;
+
+    // Use higher pixel ratio for better quality rendering
+    const scale = window.devicePixelRatio || 2;
+
+    // Create high-DPI canvas
+    const exportCanvas = document.createElement('canvas');
+    exportCanvas.width = originalWidth * scale;
+    exportCanvas.height = originalHeight * scale;
+
+    // Keep same visible size
+    exportCanvas.style.width = `${originalWidth}px`;
+    exportCanvas.style.height = `${originalHeight}px`;
+
+    const ctx = exportCanvas.getContext('2d');
+    if (!ctx) {
+      console.error('Failed to get export canvas context');
+      return;
     }
 
-      /*const imgData=canvas.toDataURL({
-        format:'png',
-        quality:1
-      })
+    // Scale drawing only, not visual size
+    ctx.scale(scale, scale);
+    ctx.drawImage(originalCanvas, 0, 0);
 
-      const doc=new jsPDF();
-      doc.addImage(imgData, 'PNG', 10, 10, 180, 160, undefined, 'FAST', 0);
-      doc.save('ot.pdf')*/
+    // Convert to image
+    const imageData = exportCanvas.toDataURL('image/png');
+
+    // Create PDF
+    const doc = new jsPDF({
+      orientation: 'portrait',
+      unit: 'mm',
+      format: 'a4',
+    });
+
+    const imgProps = doc.getImageProperties(imageData);
+    const pageWidth = doc.internal.pageSize.getWidth() - 20; // padding
+    const imgRatio = imgProps.height / imgProps.width;
+    const displayWidth = pageWidth;
+    const displayHeight = displayWidth * imgRatio;
+
+    doc.addImage(imageData, 'PNG', 10, 10, displayWidth, displayHeight, undefined, 'FAST');
+    doc.save('high_quality_canvas_export.pdf');
+
   };
 
-  const loadImageFromSrc = (src: string): Promise<HTMLImageElement> => {
+  const loadImageElement = (src: string): Promise<HTMLImageElement> => {
     return new Promise((resolve, reject) => {
       const img = new Image();
       img.crossOrigin = 'Anonymous';
-      img.onload = () => {
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
-        if (ctx) {
-          // Maintain original image dimensions for quality
-          canvas.width = img.naturalWidth;
-          canvas.height = img.naturalHeight;
-          
-          ctx.fillRect(0, 0, canvas.width, canvas.height);
-          ctx.drawImage(img, 0, 0, img.naturalWidth, img.naturalHeight);
-          
-          const resultImg = new Image();
-          resultImg.src = canvas.toDataURL('image/jpeg', 1.0);
-          resultImg.onload = () => resolve(resultImg);
-        } else {
-          reject('Canvas context error');
-        }
-      };
-      img.onerror = () => {
-        console.error('Failed to load image:', src);
-        reject(`Failed to load image: ${src}`);
-      };
+
+      img.onload = () => resolve(img);
+      img.onerror = () => reject(new Error(`Failed to load image: ${src}`));
+
       img.src = src;
+    });
+  };
+
+  const imageToDataURL = (img: HTMLImageElement): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const canvas = document.createElement('canvas');
+      canvas.width = img.naturalWidth;
+      canvas.height = img.naturalHeight;
+
+      const ctx = canvas.getContext('2d', { alpha: true });
+      if (!ctx) return reject('Canvas context error');
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(img, 0, 0);
+
+      resolve(canvas.toDataURL('image/png'));
     });
   };
 
