@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import * as fabric from 'fabric'
 import demoqr from '../assets/demoqr.png'
 import signurl from '../assets/sign.jpeg'
+import axios from 'axios'
 
 type MenuItem = {
   id: string
@@ -26,13 +27,39 @@ const menuItems: MenuItem[] = [
   }
 ]
 
-export default function SidebarWithMiniPanel({ sidebarImages, canvas }) {
+export default function SidebarWithMiniPanel({ sidebarImages, canvas,certId }) {
   const [activePage, setActivePage] = useState<string | null>(null)
   const [expandedMenus, setExpandedMenus] = useState<{ [key: string]: boolean }>({})
   const [selectedTextObj, setSelectedTextObj] = useState<fabric.Textbox | null>(null)
   const [fontSize, setFontSize] = useState(24)
   const [fontFamily, setFontFamily] = useState('Arial')
   const [fillColor, setFillColor] = useState('#000000')
+  useEffect(() => {
+    if (!canvas) return;
+    const listener = () => updateCanvasToDB();
+    canvas.on('object:modified', listener);
+    canvas.on('object:added', listener);
+    canvas.on('object:removed', listener);
+
+    return () => {
+      canvas.off('object:modified', listener);
+      canvas.off('object:added', listener);
+      canvas.off('object:removed', listener);
+    };
+  }, [canvas]);
+    const appendObjectToDB = async (obj: fabric.Object) => {
+      if (!certId) return;
+
+      const objectJSON = obj.toObject(['id', 'customType']);
+      try {
+        await axios.patch(`http://localhost:3001/certificate/${certId}/append-object`, {
+          newObject: objectJSON,
+        });
+        console.log("Appended object to DB");
+      } catch (err) {
+        console.error("Failed to append object to DB", err);
+      }
+    };
 
   useEffect(() => {
     if (!canvas) return
@@ -66,7 +93,23 @@ export default function SidebarWithMiniPanel({ sidebarImages, canvas }) {
       [id]: !prev[id],
     }))
   }
+  const updateCanvasToDB = async () => {
+      if (!certId) return;
 
+      const canvasJSON = canvas.toJSON([
+        'id', 'customType',
+        'fontSize', 'fontFamily', 'fill', 'text', 'editable', 'width', 'left', 'top'
+      ]);
+
+      try {
+        await axios.put(`http://localhost:3001/certificate/${certId}`, {
+          canvasData: canvasJSON
+        });
+        console.log("Updated certificate in DB");
+      } catch (err) {
+        console.error("Failed to update certificate"+err);
+      }
+    };
   const handleStaticAddText = () => {
     const text = new fabric.Textbox("Hello", {
       fill: fillColor,
@@ -80,7 +123,11 @@ export default function SidebarWithMiniPanel({ sidebarImages, canvas }) {
     canvas.setActiveObject(text)
 
     setSelectedTextObj(text)
+    
+    appendObjectToDB(text);
   }
+
+
   const handleDynamicAddText = () => {
     
     const initialText = "{Hello}";
@@ -153,11 +200,23 @@ export default function SidebarWithMiniPanel({ sidebarImages, canvas }) {
       });
       canvas.renderAll();
     });
+    updateCanvasToDB()
+    appendObjectToDB(textObj);
   };
-  const handleTextPropertyChange = (property: string, value: any) => {
+  const handleTextPropertyChange = async(property: string, value: any) => {
     if (!selectedTextObj) return
     selectedTextObj.set(property, value)
     canvas.renderAll()
+    const updates = {
+    [property]: value
+  };
+
+  try {
+    await axios.patch(`http://localhost:3001/certificate/${certId}/object/${selectedTextObj.id}`, updates);
+    console.log('Updated object field in DB');
+  } catch (err) {
+    console.error("Failed to update object field in DB", err);
+  }
   }
 
 
@@ -211,7 +270,9 @@ export default function SidebarWithMiniPanel({ sidebarImages, canvas }) {
     signImg.on('rotating', function () {
       signImg.setCoords();
     });
-    }
+    updateCanvasToDB()
+    appendObjectToDB(signImg);  
+  }
 
   }
 
@@ -265,6 +326,8 @@ export default function SidebarWithMiniPanel({ sidebarImages, canvas }) {
         qrImage.setCoords();
     });
     }
+    updateCanvasToDB()
+
   }
   const addingImage = (imageUrl: string) => {
     const imageElement = document.createElement('img')
@@ -317,6 +380,8 @@ export default function SidebarWithMiniPanel({ sidebarImages, canvas }) {
         image.setCoords();
     });
     }
+    updateCanvasToDB()
+
   }
 
   const renderMiniPage = () => {
