@@ -14,13 +14,15 @@ const App = () => {
   const navigate = useNavigate();
   const { width, height } = location.state || {};
 
-  const canvasRef = useRef(null);
-  const canvasContainerRef = useRef(null);
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const canvasContainerRef = useRef<HTMLDivElement | null>(null);
   const [canvas, setCanvas] = useState<Canvas | null>(null);
   const [check, setCheck] = useState(false);
   const [guideLines, setGuideLines] = useState([]);
   const [sidebarImages, setSidebarImages] = useState<string[]>([]);
   const [zoomLevel, setZoomLevel] = useState(1);
+  const [certId, setCertId] = useState<string | null>(null);
+
 
   useEffect(() => {
     if (!width || !height) {
@@ -29,7 +31,7 @@ const App = () => {
     }
 
     fabric.Object.prototype.toObject = (function(toObject) {
-      return function(propertiesToInclude) {
+      return function(this: fabric.Object, propertiesToInclude) {
         propertiesToInclude = (propertiesToInclude || []).concat('originalFilePath');
         return toObject.call(this, propertiesToInclude);
       };
@@ -124,7 +126,7 @@ const App = () => {
   return (
     <div className="bg-gray-200 min-h-screen flex"> 
       <div className="min-h-screen flex"> 
-        <Sidebar sidebarImages={sidebarImages} canvas={canvas} />
+        <Sidebar sidebarImages={sidebarImages} canvas={canvas} certId={certId} />
       </div>
      
       <div className="flex-1 overflow-auto relative"> 
@@ -168,7 +170,7 @@ const App = () => {
         </div>
   
         {canvas && (
-          <Image canvas={canvas} check={check} s={setCheck} addImageToSide={handleAddSidebarImage}/>
+          <Image canvas={canvas} check={check} s={setCheck} setCertId={setCertId} addImageToSide={handleAddSidebarImage}/>
         )}
   
         <div className="absolute right-1/5 top-1/5">
