@@ -8,11 +8,12 @@ import Sidebar from './components/Sidebar';
 import { handleMoving, clearGuideLines } from './components/Snapping';
 import LayerList from './components/LayerList';
 import Export from './components/Export';
+import axios from 'axios';
 
 const App = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { width, height } = location.state || {};
+  const { width, height,certId } = location.state || {};
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const canvasContainerRef = useRef<HTMLDivElement | null>(null);
@@ -21,11 +22,10 @@ const App = () => {
   const [guideLines, setGuideLines] = useState([]);
   const [sidebarImages, setSidebarImages] = useState<string[]>([]);
   const [zoomLevel, setZoomLevel] = useState(1);
-  const [certId, setCertId] = useState<string | null>(null);
 
 
   useEffect(() => {
-    if (!width || !height) {
+    if (!width || !height || !certId) {
       navigate('/');
       return;
     }
@@ -56,7 +56,7 @@ const App = () => {
         initCanvas.dispose();
       };
     }
-  }, [width, height]);
+  }, [width, height,certId]);
 
   useEffect(() => {
     const originalToObject = fabric.Object.prototype.toObject;
@@ -66,6 +66,23 @@ const App = () => {
   
   
   }, []);
+
+  const saveCanvasToDB=async()=>{
+     if (!canvas || !certId) return;
+
+    const canvasJSON = canvas.toJSON();
+
+    try {
+      await axios.put(`http://localhost:3001/certificate/${certId}`, {
+        canvasData: canvasJSON
+      });
+      console.log("Canvas saved to DB");
+      alert("Canvas saved!");
+    } catch (err) {
+      console.error("Error saving canvas:", err);
+      alert("Failed to save!");
+    }
+  }
 
   const handleZoom =(direction:'in'|'out') => {
     const zoomFactor=direction==='in'?1.1:0.9;
@@ -170,11 +187,19 @@ const App = () => {
         </div>
   
         {canvas && (
-          <Image canvas={canvas} check={check} s={setCheck} setCertId={setCertId} addImageToSide={handleAddSidebarImage}/>
+          <Image canvas={canvas} check={check} s={setCheck} certId={certId} addImageToSide={handleAddSidebarImage}/>
         )}
   
         <div className="absolute right-1/5 top-1/5">
           <DeleteComponent canvas={canvas} canvasRef={canvasRef} onDelete={handleFlush} />
+        </div>
+        <div>
+          <button 
+          className='rounded bg-blue-500 hover:bg-blue-800 cursor-pointer px-4 py-2 absolute right-1/5 top-4/5'
+            onClick={saveCanvasToDB}
+          >
+            Save
+          </button>
         </div>
         <LayerList canva={canvas}/>
       </div>

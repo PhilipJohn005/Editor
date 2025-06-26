@@ -14,7 +14,7 @@ const ProgressBar: React.FC<ProgressBarProps> = ({ progress }) => {
       height: '10px',
       borderRadius: '5px',
       overflow: 'hidden',
-    }} className='bg-gray-500'>
+    }} className='bg-gray-400'>
       <div style={{
         height: '100%',
         width: `${progress}%`,

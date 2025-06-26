@@ -34,32 +34,8 @@ export default function SidebarWithMiniPanel({ sidebarImages, canvas,certId }) {
   const [fontSize, setFontSize] = useState(24)
   const [fontFamily, setFontFamily] = useState('Arial')
   const [fillColor, setFillColor] = useState('#000000')
-  useEffect(() => {
-    if (!canvas) return;
-    const listener = () => updateCanvasToDB();
-    canvas.on('object:modified', listener);
-    canvas.on('object:added', listener);
-    canvas.on('object:removed', listener);
 
-    return () => {
-      canvas.off('object:modified', listener);
-      canvas.off('object:added', listener);
-      canvas.off('object:removed', listener);
-    };
-  }, [canvas]);
-    const appendObjectToDB = async (obj: fabric.Object) => {
-      if (!certId) return;
-
-      const objectJSON = obj.toObject(['id', 'customType']);
-      try {
-        await axios.patch(`http://localhost:3001/certificate/${certId}/append-object`, {
-          newObject: objectJSON,
-        });
-        console.log("Appended object to DB");
-      } catch (err) {
-        console.error("Failed to append object to DB", err);
-      }
-    };
+ 
 
   useEffect(() => {
     if (!canvas) return
@@ -93,23 +69,19 @@ export default function SidebarWithMiniPanel({ sidebarImages, canvas,certId }) {
       [id]: !prev[id],
     }))
   }
-  const updateCanvasToDB = async () => {
-      if (!certId) return;
+  const updateCanvasToDB = async (object) => {
+    if (!certId || !object) return;
 
-      const canvasJSON = canvas.toJSON([
-        'id', 'customType',
-        'fontSize', 'fontFamily', 'fill', 'text', 'editable', 'width', 'left', 'top'
-      ]);
+    try {
+      await axios.post(`http://localhost:3001/certificate/${certId}/elements`, object);
+      console.log("Added object to certificate in DB");
+    } catch (err) {
+      console.error("Failed to add object to certificate: " + err);
+    }
+  };
 
-      try {
-        await axios.put(`http://localhost:3001/certificate/${certId}`, {
-          canvasData: canvasJSON
-        });
-        console.log("Updated certificate in DB");
-      } catch (err) {
-        console.error("Failed to update certificate"+err);
-      }
-    };
+
+    
   const handleStaticAddText = () => {
     const text = new fabric.Textbox("Hello", {
       fill: fillColor,
@@ -123,8 +95,7 @@ export default function SidebarWithMiniPanel({ sidebarImages, canvas,certId }) {
     canvas.setActiveObject(text)
 
     setSelectedTextObj(text)
-    
-    appendObjectToDB(text);
+    updateCanvasToDB(text.toObject(['id', 'customType']));
   }
 
 
@@ -200,9 +171,9 @@ export default function SidebarWithMiniPanel({ sidebarImages, canvas,certId }) {
       });
       canvas.renderAll();
     });
-    updateCanvasToDB()
-    appendObjectToDB(textObj);
+    updateCanvasToDB(textObj.toObject(['id', 'customType']))
   };
+
   const handleTextPropertyChange = async(property: string, value: any) => {
     if (!selectedTextObj) return
     selectedTextObj.set(property, value)
@@ -270,8 +241,7 @@ export default function SidebarWithMiniPanel({ sidebarImages, canvas,certId }) {
     signImg.on('rotating', function () {
       signImg.setCoords();
     });
-    updateCanvasToDB()
-    appendObjectToDB(signImg);  
+    updateCanvasToDB(signImg)
   }
 
   }
@@ -325,8 +295,9 @@ export default function SidebarWithMiniPanel({ sidebarImages, canvas,certId }) {
     qrImage.on('rotating', function () {
         qrImage.setCoords();
     });
+        updateCanvasToDB(qrImage);
+
     }
-    updateCanvasToDB()
 
   }
   const addingImage = (imageUrl: string) => {
@@ -379,8 +350,9 @@ export default function SidebarWithMiniPanel({ sidebarImages, canvas,certId }) {
     image.on('rotating', function () {
         image.setCoords();
     });
+        updateCanvasToDB(image)
+
     }
-    updateCanvasToDB()
 
   }
 
