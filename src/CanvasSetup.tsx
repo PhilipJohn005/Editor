@@ -1,3 +1,4 @@
+import axios from 'axios';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -6,8 +7,34 @@ const CanvasSetup = () => {
   const [height, setHeight] = useState(500);
   const navigate = useNavigate();
 
-  const handleStart = (w: number, h: number) => {
-    navigate('/editor', { state: { width: w, height: h } });
+  const handleStart = async (w: number, h: number) => {
+    let text = 'Custom';
+    if (w === 595 && h === 842) text = 'A4 portrait';
+    else if (w === 842 && h === 595) text = 'A4 landscape';
+
+    try {
+      const res = await axios.post('http://localhost:3001/certificate', {
+        name: text,
+        width: w,
+        height: h,
+        canvasData: {
+          objects: [],
+        },
+      });
+
+      const createdCanvas = res.data;
+      const certId = createdCanvas._id;
+
+      navigate('/editor', {
+        state: {
+          width: w,
+          height: h,
+          certId,
+        },
+      });
+    } catch (err) {
+      console.error('Error sending dimensions:', err);
+    }
   };
 
   return (
