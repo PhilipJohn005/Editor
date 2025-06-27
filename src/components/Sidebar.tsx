@@ -44,7 +44,9 @@ export default function SidebarWithMiniPanel({ sidebarImages, canvas,certId }) {
       const activeObj = canvas.getActiveObject()
       if (activeObj && activeObj.type === 'textbox') {
         setSelectedTextObj(activeObj as fabric.Textbox)
-        setFontSize((activeObj as fabric.Textbox).fontSize || 24)
+        const fs = parseInt((activeObj as fabric.Textbox).fontSize?.toString() || '24', 10);
+        setFontSize(isNaN(fs) ? 24 : fs);
+
         setFontFamily((activeObj as fabric.Textbox).fontFamily || 'Arial')
         setFillColor((activeObj as fabric.Textbox).fill as string || '#000000')
       } else {
@@ -160,9 +162,8 @@ export default function SidebarWithMiniPanel({ sidebarImages, canvas,certId }) {
   
     
     textObj.on('scaling', () => {
-     
-
-      const newFontSize = fontSize * textObj.scaleX;
+     const scaleX = typeof textObj.scaleX === 'number' ? textObj.scaleX : 1;
+  const newFontSize = fontSize * scaleX;
       textObj.set({
         fontSize: newFontSize,
         scaleX: 1,
