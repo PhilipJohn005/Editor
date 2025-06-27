@@ -69,7 +69,7 @@ const App = () => {
 
   const saveCanvasToDB=async()=>{
      if (!canvas || !certId) return;
-
+    const start=performance.now();
     const canvasJSON = canvas.toJSON();
 
     try {
@@ -77,11 +77,15 @@ const App = () => {
         canvasData: canvasJSON
       });
       console.log("Canvas saved to DB");
+      const end=performance.now();
+      console.log(`Save time: ${(end - start).toFixed(2)} ms`);
       alert("Canvas saved!");
     } catch (err) {
       console.error("Error saving canvas:", err);
       alert("Failed to save!");
     }
+    
+
   }
 
   const handleZoom =(direction:'in'|'out') => {
