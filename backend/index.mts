@@ -18,7 +18,7 @@ mongoose.connect(process.env.MONGO_URI!)
   .catch((err) => console.error("MongoDB connection error:", err));
 
 
-  const certificateSchema = new mongoose.Schema({
+const certificateSchema = new mongoose.Schema({
   name: String,
   width: Number,
   height: Number,
@@ -26,6 +26,8 @@ mongoose.connect(process.env.MONGO_URI!)
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now }
 });
+
+
 const Certificate = mongoose.model('Certificate', certificateSchema);
 
 const s3 = new S3Client({
@@ -100,7 +102,6 @@ app.post('/certificate/:id/elements', async (req, res) => {
     res.status(500).json({ error: 'Failed to add element to certificate' });
   }
 });
-
 
 
 
