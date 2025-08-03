@@ -1,4 +1,3 @@
-// src/components/Template/Image.tsx
 
 import React, { useEffect, useRef, useState } from 'react';
 import * as fabric from 'fabric'
@@ -15,13 +14,7 @@ interface ImageComponentProps {
   addImageToSide: (url: string) => void;
 }
 
-const ImageComponent: React.FC<ImageComponentProps> = ({
-  canvas,
-  check,
-  s,
-  certId,
-  addImageToSide
-}) => {
+const ImageComponent: React.FC<ImageComponentProps> = ({canvas,check,s,certId,addImageToSide}) => {
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [progress, setProgress] = useState(0);
   const [uploading, setUploading] = useState(false);

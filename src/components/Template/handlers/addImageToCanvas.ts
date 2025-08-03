@@ -1,13 +1,7 @@
 import * as fabric from 'fabric'
 import axios from 'axios';
 
-export async function addImageToCanvas(
-  canvas: fabric.Canvas,
-  base64Url: string,
-  s3Url: string,
-  certId: string,
-  file: File
-): Promise<fabric.Image> {
+export async function addImageToCanvas(canvas: fabric.Canvas,base64Url: string,s3Url: string,certId: string,file: File): Promise<fabric.Image> {
   return new Promise((resolve) => {
     const img = new Image();
     img.src = base64Url;
@@ -40,10 +34,7 @@ export async function addImageToCanvas(
       serialized.src = s3Url;
       serialized.customType = 'image';
 
-      await axios.post(
-        `http://localhost:3001/certificate/${certId}/elements`,
-        serialized
-      );
+      await axios.post(`http://localhost:3001/certificate/${certId}/elements`,serialized);
 
       fabricImage.set({
         cornerColor: 'green',

@@ -21,9 +21,43 @@ const StaticTextPanel = ({ canvas, fillColor, fontSize, fontFamily, updateCanvas
             id: crypto.randomUUID(),
             customType: "static",
         });
+        
+        const scaleFactor = (canvas.width! * 0.2) / text.width!;
+          text.scale(scaleFactor)
+    
+          text.set({
+            left: (canvas.width! - text.getScaledWidth()) / 2,
+            top: canvas.height! - text.getScaledHeight() - 20,
+          });
 
         canvas.add(text);
         canvas.setActiveObject(text);
+        const activeObj = canvas.getActiveObject();
+                        if (activeObj) {
+                            activeObj.set({
+                            cornerColor: 'green',
+                            cornerSize: 12,
+                            transparentCorners: false,
+                            cornerStyle: 'circle',
+                        });
+                    }
+        text.on('moving', function () {
+            text.setCoords();
+            const boundingRect = text.getBoundingRect();
+    
+            if (boundingRect.left < 0) text.left -= boundingRect.left;
+            if (boundingRect.top < 0) text.top -= boundingRect.top;
+            if (boundingRect.left + boundingRect.width > canvas.width!) {
+                text.left -= (boundingRect.left + boundingRect.width - canvas.width!);
+            }
+            if (boundingRect.top + boundingRect.height > canvas.height!) {
+                text.top -= (boundingRect.top + boundingRect.height - canvas.height!);
+            }
+        });
+        
+        text.on('rotating', function () {
+            text.setCoords();
+        });
         setSelectedTextObj(text);
 
         updateCanvasToDB(text.toObject(['id', 'customType']));
