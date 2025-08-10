@@ -8,7 +8,6 @@ interface Props{
     demoqr:string
 }
 
-
 const QRCodePanel = ({canvas,updateCanvasToDB,demoqr}:Props) => {
 
     const addQrToCanvas=(qrUrl:string)=>{
