@@ -160,10 +160,6 @@ npm run preview
 - **Images**: Uploaded to AWS S3 with secure presigned URLs
 - **Auto-backup**: All changes automatically saved to database
 
-## 📄 License
-
-This project is private and proprietary.
-
 ---
 
 Built with ❤️ using modern web technologies for professional certificate creation.
