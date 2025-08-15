@@ -162,4 +162,7 @@ npm run preview
 
 ---
 
-Built with ❤️ using modern web technologies for professional certificate creation.
+## 📄 License
+
+This project is private and proprietary.  
+Copyright (c) 2025 Sertify. All rights reserved.
