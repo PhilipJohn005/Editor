@@ -27,11 +27,9 @@ A powerful web-based certificate design and editing application built with React
 
 - **Verification Elements**:
   - Digital Signature integration
-  - QR Code embedding
-  - Verification-ready certificate templates
+  - QR Code
 
 ### Advanced Functionality
-- **Auto-Save**: Canvas data automatically syncs with MongoDB database
 - **Export Options**: Export certificates as PDF with high-quality rendering
 - **Responsive Design**: Works across different screen sizes
 - **Object Controls**: Delete, move, resize, and rotate objects with visual feedback
