@@ -156,8 +156,6 @@ npm run preview
 
 - **Canvas Data**: Stored in MongoDB with full object serialization
 - **Images**: Uploaded to AWS S3 with secure presigned URLs
-- **Auto-backup**: All changes automatically saved to database
-
 ---
 
 ## 📄 License
