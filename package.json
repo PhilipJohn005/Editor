@@ -14,9 +14,12 @@
   "dependencies": {
     "@aws-sdk/client-s3": "^3.828.0",
     "@aws-sdk/s3-request-presigner": "^3.828.0",
+    "@radix-ui/react-slot": "^1.2.3",
     "@tailwindcss/vite": "^4.1.3",
     "@types/fabric": "^5.3.10",
     "axios": "^1.10.0",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
     "cors": "^2.8.5",
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
@@ -24,12 +27,14 @@
     "jspdf": "^3.0.1",
     "jspdf-autotable": "^5.0.2",
     "lodash": "^4.17.21",
+    "lucide-react": "^0.542.0",
     "mongoose": "^8.15.2",
     "pdf-lib": "^1.17.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-dropzone": "^14.3.8",
     "react-router-dom": "^7.5.1",
+    "tailwind-merge": "^3.3.1",
     "tailwindcss": "^4.1.3"
   },
   "devDependencies": {
@@ -48,6 +53,7 @@
     "eslint-plugin-react-refresh": "^0.4.19",
     "globals": "^15.15.0",
     "ts-node": "^10.9.2",
+    "tw-animate-css": "^1.3.7",
     "typescript": "~5.7.2",
     "typescript-eslint": "^8.24.1",
     "vite": "^6.2.0"

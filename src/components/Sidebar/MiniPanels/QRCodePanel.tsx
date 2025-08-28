@@ -1,7 +1,4 @@
 import * as fabric from 'fabric'
-
-
-
 interface Props{
     canvas:fabric.Canvas;
     updateCanvasToDB:(obj:any)=>void;
