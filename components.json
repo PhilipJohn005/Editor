@@ -6,7 +6,7 @@
   "tailwind": {
     "config": "",
     "css": "src/index.css",
-    "baseColor": "default",
+    "baseColor": "neutral",
     "cssVariables": true,
     "prefix": ""
   },
@@ -17,5 +17,6 @@
     "ui": "@/components/ui",
     "lib": "@/lib",
     "hooks": "@/hooks"
-  }
+  },
+  "registries": {}
 }
