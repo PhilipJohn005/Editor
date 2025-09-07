@@ -1,26 +1,44 @@
-import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
-import App from './App'
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
-import CertificateSetup from './components/screens/CertificateSetup'
-import CertificateEditor from './components/screens/CertificateEditor'
-import CanvasSetup from './CanvasSetup'
-import LandingPage from './components/LandingPage/LandingPage'
+import MainCanvasScreen from './components/screens/Issuer/subComponents/canvas/MainCanvasScreen';
+import CanvasSetup from './components/screens/Issuer/CanvasSetup'
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import AppLayout from './components/layouts/AppLayout';
+import LoginPage from './components/screens/LoginPage';
+import Dashboard from './components/screens/Issuer/Dashboard';
+import BadgeClass from './components/screens/Issuer/BadgeClass';
+import CredentialManagement from './components/screens/Issuer/CredentialManagement';
+import SubscriptionandBilling from './components/screens/Issuer/SubscriptionandBilling';
+import ProfileManagement from './components/screens/Issuer/ProfileManagement';
+import Issuance from './components/screens/Issuer/Issuance';
+import App from './App';
+import RecipientProfile from './components/screens/Recipient/RecipientProfile';
+import RecipientWallet from './components/screens/Recipient/RecipientWallet';
+import VerifierFormPage from './components/screens/Verifier/VerifierFormPage';
+import VerifierPage from './components/screens/Verifier/Verifierpage';
 
 createRoot(document.getElementById('root')!).render(
   <BrowserRouter>
-    <BrowserRouter>
-      <Routes>
-        <Route path="/*" element={<App />} />
-        <Route path="/certificate-setup" element={<CertificateSetup />} />
-        <Route path="/certificate-editor" element={<CertificateEditor />} />
-      </Routes>
-    </BrowserRouter>
-      <Route path="/" element={<CanvasSetup/>} />
-      <Route path="/editor" element={<App/>} />
-      <Route path="/landing" element={<LandingPage/>}/>
+    <Routes>
+      <Route path="/login" element={<LoginPage />} />
+      <Route path="/" element={<App/>}/>
+      
+      <Route path='recipientwallet' element={<RecipientWallet/>}/>
+      <Route path='recipientprofile' element={<RecipientProfile/>}/>
+
+      <Route path='verifierpage' element={<VerifierPage/>}/>
+      <Route path='verifierformpage' element={<VerifierFormPage/>}/>
+
+      <Route element={<AppLayout/>}>
+        <Route path="canvassetup" element={<CanvasSetup/>}/>
+        <Route path="editor" element={<MainCanvasScreen/>}/>
+        <Route path="dashboard" element={<Dashboard />} />
+        <Route path="badge-class" element={<BadgeClass />} />
+        <Route path="credential" element={<CredentialManagement/>}/>
+        <Route path="issueance" element={<Issuance/>}/>
+        <Route path="subscription" element={<SubscriptionandBilling/>}/>
+        <Route path="profile" element={<ProfileManagement/>}/>
+      </Route>
     </Routes>
   </BrowserRouter>
 )
