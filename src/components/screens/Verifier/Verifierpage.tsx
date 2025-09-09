@@ -87,7 +87,7 @@ export default function VerifierPage() {
                 <Badge variant="secondary">Verified</Badge>
               </div>
 
-              {/* Credential details */}
+             
               <Card>
                 <CardHeader>
                   <CardTitle>Credential Details</CardTitle>
