@@ -6,15 +6,15 @@ export type MenuItem = {
 }
 
 export const menuItems: MenuItem[] = [
-  { id: 'library', label: 'Library', icon: '📚' },
+  { id: 'library', label: 'Library', icon: '' },
   {
-    id: 'text', label: 'Text', icon: '📝', subItems: [
+    id: 'text', label: 'Text', icon: '', subItems: [
       { id: 'staticText', label: 'Static Text' },
       { id: 'dynamicText', label: 'Dynamic Text' }
     ]
   },
   {
-    id: 'verification', label: 'Verification', icon: '✅', subItems: [
+    id: 'verification', label: 'Verification', icon: '', subItems: [
       { id: 'digitalSign', label: 'Digital Sign' },
       { id: 'qrCode', label: 'QR Code' }
     ]
