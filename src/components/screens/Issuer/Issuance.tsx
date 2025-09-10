@@ -28,7 +28,7 @@ export default function Issuance() {
                 <Input className="border border-black" placeholder="abc" />
               </div>
               <div>
-                <label className="block text-sm mb-1">Badge Class</label>
+                <label className="block text-sm mb-1">Certificate Class</label>
                 <Input className="border border-black" placeholder="Web Developer" />
               </div>
               
@@ -47,7 +47,7 @@ export default function Issuance() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-gray-200 p-6 rounded-md">
             <div className="space-y-4 flex flex-col">
               <div>
-                <label className="block text-sm mb-1">Badge Class</label>
+                <label className="block text-sm mb-1">Certificate Class</label>
                 <Input className="border border-black" placeholder="Marketing" />
               </div>
               <div className="flex flex-grow items-stretch">

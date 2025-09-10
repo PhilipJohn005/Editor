@@ -34,7 +34,7 @@ createRoot(document.getElementById('root')!).render(
         <Route path="editor" element={<MainCanvasScreen/>}/>
         <Route path="dashboard" element={<Dashboard />} />
         <Route path="badge-class" element={<BadgeClass />} />
-        <Route path="credential" element={<CredentialManagement/>}/>
+        <Route path="badgemanager" element={<CredentialManagement/>}/>
         <Route path="issueance" element={<Issuance/>}/>
         <Route path="subscription" element={<SubscriptionandBilling/>}/>
         <Route path="profile" element={<ProfileManagement/>}/>

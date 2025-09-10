@@ -23,7 +23,11 @@ const data = {
     { title: "Dashboard", url: "/dashboard" },
     { title: "Certificate-Class", url: "/badge-class" },
     { title: "Canvas Tool", url: "/canvassetup" },
-    { title: "Credential Manager", url: "/credential" },
+    { title: "Credential Manager", 
+      children: [
+        { title: "Badge Manager", url: "/badgemanager" },
+        { title: "Certificate Manager", url: "/certifiicatemanager" },
+      ]},
     { title: "Issuance", url: "/issueance" },
     { title: "Subscription & Billing", url: "/subscription" },
     { title: "Profile Management", url: "/profile" },
