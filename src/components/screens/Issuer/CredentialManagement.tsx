@@ -43,7 +43,7 @@ const CredentialManagement = () => {
   return (
     <div className="space-y-6">
       
-      <h2 className="text-2xl font-bold">Credential Management</h2>
+      <h2 className="text-2xl font-bold">Certificate Manager</h2>
 
     
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
