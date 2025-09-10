@@ -12,7 +12,7 @@ interface SidebarMenuProps {
 export default function SidebarMenu({ menuItems, activePage, expandedMenus, toggleMenu, setActivePage }: SidebarMenuProps) {
   return (
     <div className="text-white w-28 flex flex-col py-6 gap-4 px-2 h-full">
-      <div className="text-2xl font-bold text-center">🌟</div>
+      <div className="text-2xl font-bold text-center"></div>
       <nav className="flex flex-col gap-2">
         {menuItems.map((item) => (
           <div key={item.id}>
