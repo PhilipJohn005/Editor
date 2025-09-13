@@ -1,5 +1,5 @@
-import { LoginForm } from "./Issuer/subComponents/login-form"
-import logo from '../../assets/sertify-logo-full.png'
+import { LoginForm } from "../Issuer/subComponents/login-form"
+import logo from '../../../assets/sertify-logo-full.png'
 
 export default function LoginPage() {
   return (
