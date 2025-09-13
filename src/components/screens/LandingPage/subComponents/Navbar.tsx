@@ -1,14 +1,17 @@
 import { Button } from "@/components/ui/button";
-import { Logo } from "../../../ui/navbarComponents/logo";
 import { NavMenu } from "../../../ui/navbarComponents/nav-menu";
 import { NavigationSheet } from "../../../ui/navbarComponents/navigation-sheet";
+import logo from '@/assets/sertify-logo-full.png'
 
 const Navbar04Page = () => {
   return (
     <div className="">
-      <nav className="fixed top-6 inset-x-4 h-16 z-50 border bg-background/50 backdrop-blur-md dark:border-slate-700/70 max-w-(--breakpoint-xl) mx-auto rounded">
+      <nav className="fixed top-6 inset-x-4 h-16 z-50 border bg-background/50 backdrop-blur-md dark:border-slate-700/70 max-w-[1329px] mx-auto">
         <div className="h-full flex items-center justify-between mx-auto px-4">
-          <Logo />
+          <img
+            src={logo}
+            className="w-auto h-10 object-contain"
+          />
 
           
           <NavMenu className="hidden md:block" />
