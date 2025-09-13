@@ -12,8 +12,8 @@ import Navbar04Page from './subComponents/Navbar'
 const LandingPage = () => {
   return (
     <div className='relative'>
-        <div className="absolute left-24 top-20 bottom-70 w-px bg-gray-300" />
-        <div className="absolute right-24 top-20 bottom-70 w-px bg-gray-300" />
+        <div className="absolute left-24 top-0 bottom-70 w-px bg-gray-300" />
+        <div className="absolute right-24 top-0 bottom-70 w-px bg-gray-300" />
 
         <Navbar04Page/>
         <Hero02/>
