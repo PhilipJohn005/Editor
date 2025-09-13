@@ -4,7 +4,7 @@ import MainCanvasScreen from './components/screens/Issuer/subComponents/canvas/M
 import CanvasSetup from './components/screens/Issuer/CanvasSetup'
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import AppLayout from './components/layouts/AppLayout';
-import LoginPage from './components/screens/LoginPage';
+import LoginPage from './components/screens/Login/LoginPage';
 import Dashboard from './components/screens/Issuer/Dashboard';
 import BadgeClass from './components/screens/Issuer/BadgeClass';
 import CredentialManagement from './components/screens/Issuer/CredentialManagement';
