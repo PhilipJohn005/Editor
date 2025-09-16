@@ -46,7 +46,7 @@ const Features06Page = () => {
     <div className="relative min-h-screen pt-40 flex items-center justify-center">
       <div className="absolute left-24 top-20 right-24 h-px bg-gray-300" />
       <div className="max-w-(--breakpoint-lg) w-full py-10 px-6">
-        <h2 className="text-4xl md:text-[2.75rem] md:leading-[1.2] font-semibold tracking-[-0.03em] sm:max-w-xl text-pretty sm:mx-auto sm:text-center">
+        <h2 className="text-4xl md:text-[2.75rem] md:leading-[1.2] text-secondary font-semibold tracking-[-0.03em] sm:max-w-xl text-pretty sm:mx-auto sm:text-center">
           Strengthen Your Strategy
         </h2>
         <p className="mt-2 text-muted-foreground text-lg sm:text-xl sm:text-center">
@@ -63,7 +63,7 @@ const Features06Page = () => {
                 <span className="uppercase font-medium text-sm text-muted-foreground">
                   {feature.category}
                 </span>
-                <h4 className="my-3 text-2xl font-semibold tracking-tight">
+                <h4 className="my-3 text-2xl font-semibold text-secondary tracking-tight">
                   {feature.title}
                 </h4>
                 <p className="text-muted-foreground">{feature.details}</p>
