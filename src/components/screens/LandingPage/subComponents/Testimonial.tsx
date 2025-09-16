@@ -63,7 +63,7 @@ const Testimonial05 = () => (
       <div className="absolute left-24 top-14 right-24 h-[0.5px] bg-gray-300" />
 
     <div className="mt-20">
-      <h2 className="text-5xl pt-8 font-semibold text-center tracking-[-0.03em]">
+      <h2 className="text-5xl pt-8 font-semibold text-center text-secondary tracking-[-0.03em]">
         Loved by Developers
       </h2>
       <p className="mt-3 text-center text-muted-foreground text-xl">

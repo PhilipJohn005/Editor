@@ -73,7 +73,7 @@ const Pricing03 = () => {
   return (
     <div className="relative min-h-screen pt-6 flex flex-col items-center justify-center py-12 px-6">
       <div className="absolute left-24 top-20 right-24 h-[0.5px] bg-gray-300" />
-      <h1 className="text-5xl mt-40 sm:text-6xl font-semibold text-center tracking-tighter">
+      <h1 className="text-5xl mt-40 sm:text-6xl font-semibold text-center text-secondary tracking-tighter">
         Pricing
       </h1>
       <Tabs
