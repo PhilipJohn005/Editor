@@ -38,12 +38,10 @@ const BadgeClass = () => {
         <Button>Create Class</Button>
       </div>
 
-      {/* Certificates List */}
       <div className="space-y-4">
         {certificates.map((cert) => (
-          <Card key={cert.id} className="rounded-2xl bg-gray-100">
+          <Card key={cert.id} className="rounded-2xl bg-card text-card-foreground">
             <CardContent className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-4">
-              {/* Left side */}
               <div className="flex items-center gap-4">
                 <img
                   src={cert.image}
@@ -54,7 +52,7 @@ const BadgeClass = () => {
                   <h3 className="text-lg font-medium">{cert.title}</h3>
                   <Button
                     variant="ghost"
-                    className="p-0 h-auto text-sm text-blue-600 hover:underline"
+                    className="p-0 h-auto text-sm text-primary hover:underline"
                   >
                     Duplicate
                   </Button>
@@ -65,14 +63,17 @@ const BadgeClass = () => {
               <div className="flex gap-3">
                 <Button
                   variant="ghost"
-                  className="text-red-600 hover:bg-red-100"
+                  className="text-destructive hover:bg-destructive/10"
                 >
                   Delete
                 </Button>
-                <Button variant="outline">Preview</Button>
+                <Button variant="outline" className="border-border text-secondary">
+                  Preview
+                </Button>
               </div>
             </CardContent>
           </Card>
+
         ))}
       </div>
     </div>
