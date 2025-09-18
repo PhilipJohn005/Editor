@@ -15,36 +15,34 @@ export default function Issuance() {
           <TabsTrigger value="bulk">Bulk Issue</TabsTrigger>
         </TabsList>
 
-        {/* Manual Issue Form */}
         <TabsContent value="manual">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-gray-200 p-6 rounded-md">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-white border border-b p-6 rounded-md">
             <div className="space-y-4">
               <div>
                 <label className="block text-sm mb-1">Recipient Email</label>
-                <Input className="border border-black" placeholder="abc@gmail.com" />
+                <Input className="border border-b rounded" placeholder="abc@gmail.com" />
               </div>
               <div>
                 <label className="block text-sm mb-1">Recipient Name</label>
-                <Input className="border border-black" placeholder="abc" />
+                <Input className="border border-b rounded" placeholder="abc" />
               </div>
               <div>
                 <label className="block text-sm mb-1">Certificate Class</label>
-                <Input className="border border-black" placeholder="Web Developer" />
+                <Input className="border border-b rounded" placeholder="Web Developer" />
               </div>
               
             </div>
 
             <div>
               <label className="block text-sm mb-1">Evidence/Notes</label>
-              <Textarea placeholder="Add notes here..." className="h-40 border border-black" />
+              <Textarea placeholder="Add notes here..." className="h-40 border border-black rounded" />
             </div>
           </div>
           <Button className="w-full">Submit</Button>
         </TabsContent>
 
-        {/* Bulk Issue Form */}
         <TabsContent value="bulk">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-gray-200 p-6 rounded-md">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 border border-b bg-white p-6 rounded-md">
             <div className="space-y-4 flex flex-col">
               <div>
                 <label className="block text-sm mb-1">Certificate Class</label>
