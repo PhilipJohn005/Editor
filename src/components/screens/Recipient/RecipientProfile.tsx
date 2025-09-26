@@ -43,7 +43,7 @@ export default function RecipientProfile() {
               <Input placeholder="Last Name" defaultValue="John" />
               <Input placeholder="Phone No." defaultValue="+91 54545abcd" />
               <Input placeholder="Location" defaultValue="Mars" />
-              <Textarea placeholder="Bio" defaultValue="Cloud enthusiast and lifelong learner 🚀" />
+              <Textarea placeholder="Bio" defaultValue="Cloud enthusiast and lifelong learner" />
             </div>
           </CardContent>
         </Card>
