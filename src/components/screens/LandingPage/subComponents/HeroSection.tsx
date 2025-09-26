@@ -22,7 +22,7 @@ const Hero02 = () => {
             </Button>
           </Badge>
 
-          <h1 className="mt-6 max-w-[17ch] text-4xl md:text-5xl lg:text-[2.75rem] xl:text-[3.25rem] font-semibold leading-[1.2]! tracking-tighter text-secondary">
+          <h1 className="mt-6 max-w-[17ch] text-black text-4xl md:text-5xl lg:text-[2.75rem] xl:text-[3.25rem] font-semibold leading-[1.2]! tracking-tighter">
             Customized Shadcn UI Blocks & Components
           </h1>
 
