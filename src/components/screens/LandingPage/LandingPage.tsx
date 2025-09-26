@@ -8,6 +8,7 @@ import Testimonial05 from './subComponents/Testimonial'
 import Cta from './subComponents/Cta'
 import Footer04Page from './subComponents/Footer'
 import Navbar04Page from './subComponents/Navbar'
+import IntegrationsSection from './subComponents/Integrations'
 
 const LandingPage = () => {
   return (
@@ -18,10 +19,10 @@ const LandingPage = () => {
         <Navbar04Page/>
         <Hero02/>
         <Logos06Page/>
+        <IntegrationsSection/>
         <Features06Page/>
         <Pricing03/>
         <FAQ05/>
-        <Testimonial05/>
         <Cta/>
         <Footer04Page/>
     </div>

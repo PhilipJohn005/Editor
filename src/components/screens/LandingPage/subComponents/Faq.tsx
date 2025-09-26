@@ -52,7 +52,7 @@ const FAQ05 = () => {
             <div className="absolute left-24 top-20 right-24 h-px bg-gray-300" />
 
       <div className="mt-20 max-w-(--breakpoint-lg)">
-        <h2 className="text-4xl pt-8 md:text-5xl leading-[1.15]! font-semibold tracking-tighter text-secondary text-center">
+        <h2 className="text-4xl pt-8 md:text-5xl leading-[1.15]! font-semibold tracking-tighter text-black text-center">
           Frequently Asked Questions
         </h2>
         <p className="mt-3 text-xl text-center text-muted-foreground">
