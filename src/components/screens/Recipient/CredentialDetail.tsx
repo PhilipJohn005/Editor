@@ -93,7 +93,7 @@ export default function CredentialDetailPage() {
   return (
     <div className="min-h-screen w-full bg-gray-50 text-gray-900">
       {/* Header */}
-      <header className="w-full border-b bg-white shadow-sm p-6 flex justify-between items-center">
+      <div className="w-full p-6">
         <Button
           variant="ghost"
           className="flex items-center gap-2"
@@ -101,9 +101,7 @@ export default function CredentialDetailPage() {
         >
           <ChevronLeft className="h-4 w-4" /> Back
         </Button>
-        <h1 className="text-2xl font-bold">{cred.title}</h1>
-        <span />
-      </header>
+      </div>
 
       {/* Main Body */}
       <main className="w-full p-10 space-y-10">
