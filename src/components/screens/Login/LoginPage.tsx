@@ -38,13 +38,11 @@ const LoginPage = () => {
 
   const onSubmitEmail = (data: z.infer<typeof emailSchema>) => {
     console.log("Email submitted:", data.email);
-    // Normally: send OTP to email here
     setStep("otp");
   };
 
   const onSubmitOtp = (data: z.infer<typeof otpSchema>) => {
     console.log("OTP entered:", data.otp);
-    // Normally: verify OTP here
   };
 
   return (
@@ -148,7 +146,6 @@ const LoginPage = () => {
           )}
         </AnimatePresence>
 
-        {/* Terms and Conditions + Footer */}
         <p className="mt-6 text-xs text-center text-muted-foreground">
           By continuing, you agree to our{" "}
           <span className="underline cursor-pointer">Terms of Service</span> and{" "}
