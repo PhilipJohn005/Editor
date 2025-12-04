@@ -9,6 +9,8 @@ import { handleMoving, clearGuideLines } from './Snapping';
 import LayerList from './LayerList';
 import Export from './Export';
 import axios from 'axios';
+import rotate_icon from '@/assets/rotate.svg'
+
 
 const MainCanvasScreen = () => {
   const location = useLocation();
@@ -117,32 +119,91 @@ const MainCanvasScreen = () => {
     setCheck(true);
   };
 
+const rotateImg = new window.Image();
+rotateImg.src = rotate_icon;
+
   const addRectangle = () => {
-    if (canvas) {
-      const rect = new Rect({
-        top: 100,
-        left: 50,
-        width: 100,
-        height: 60,
-        fill: '#D84D42',
+    if (!canvas) return;
+
+    const rect = new Rect({
+      top: 100,
+      left: 50,
+      width: 100,
+      height: 60,
+      fill: '#D84D42',
+    });
+
+    const existingMtr = rect.controls?.mtr; //move to reotate
+
+    rect.controls.mtr = new fabric.Control({
+      ...(existingMtr || {}),          
+      x: 0,
+      y: -0.5,                         
+      offsetY: -40,                    
+      withConnection: true,
+      actionHandler: fabric.controlsUtils.rotationWithSnapping,
+      cursorStyleHandler: fabric.controlsUtils.rotationStyleHandler,
+      render: (ctx, left, top, styleOverride, target) => {
+        const size = 24;
+        ctx.save();
+        ctx.translate(left, top);
+        ctx.rotate(fabric.util.degreesToRadians(target.angle || 0));
+
+        if (rotateImg.complete) {
+          ctx.drawImage(rotateImg, -size / 2, -size / 2, size, size);
+        }
+
+        ctx.restore();
+      },
+    });
+
+    canvas.add(rect);
+    canvas.setActiveObject(rect);
+
+    const roundedCornerControl = (controlName: string) => {
+    rect.controls[controlName] = new fabric.Control({
+      ...rect.controls[controlName],
+      render: (ctx, left, top, styleOverride, obj) => {
+        const radius = 7;
+
+        ctx.save();
+        ctx.strokeStyle = "black";
+        ctx.fillStyle = "#3BD4A6";
+        ctx.beginPath();
+        ctx.roundRect(left-6, top-6, 12,12,4);
+        ctx.fill();
+        ctx.stroke();
+        ctx.restore();
+      },
+    });
+  };
+
+
+  ["tl", "tr", "bl", "br", "mt", "ml", "mr", "mb"].forEach(roundedCornerControl);
+
+
+    const activeObj = canvas.getActiveObject();
+    if (activeObj) {
+      activeObj.set({
+        borderColor: 'white',
+        cornerColor: '#3BD4A6',
+        cornerStrokeColor:'black',
+        cornerSize: 12,
+        transparentCorners: false,
       });
+    }
 
-      canvas.add(rect);
-      canvas.setActiveObject(rect);
-      const activeObj = canvas.getActiveObject();
-      if (activeObj) {
-        activeObj.set({
-          borderColor: 'red',
-          cornerColor: 'green',
-          cornerSize: 12,
-          transparentCorners: false,
-          cornerStyle: 'circle',
-        });
-      }
+    canvas.renderAll();
 
-      canvas.renderAll();
+    if (!rotateImg.complete) {
+      rotateImg.onload = () => {
+        canvas.renderAll();
+      };
     }
   };
+
+
+
 
   return (
     <div className="bg-gray-200 min-h-screen flex"> 
@@ -166,9 +227,17 @@ const MainCanvasScreen = () => {
         </button>
         <button
           onClick={() => {
-            if (canvas) {
-              const json = canvas.toJSON();
+           if (canvas) {
+              const json = (canvas as any).toJSON([
+                'canvasWidth','canvasHeight'
+              ]);
+
+              json.canvasWidth = canvas.getWidth();
+              json.canvasHeight = canvas.getHeight();
+
               console.log(JSON.stringify(json, null, 2));
+              console.log(canvas.getObjects());
+
             }
           }}
           className="absolute bg-green-600 px-4 py-2 text-white rounded"
