@@ -1,15 +1,14 @@
 import { useState, useEffect } from 'react'
 import * as fabric from 'fabric'
-import demoqr from '../../../../../../assets/demoqr.png'
-import signurl from '../../../../../../assets/sign.jpeg'
-import axios from 'axios'
+import demoqr from '@/assets/demoqr.png'
+import signurl from '@/assets/sign.jpeg'
 import StaticTextPanel from './MiniPanels/StaticTextPanel'
 import DynamicTextPanel from './MiniPanels/DynamicTextPanel'
 import SignaturePanel from './MiniPanels/SignaturePanel'
 import QRCodePanel from './MiniPanels/QRCodePanel'
 import LibraryPanel from './MiniPanels/LibraryPanel'
 import { menuItems } from './handlers/type-interfaceHandler'
-import SidebarMenu from './SidebarMenu/SidebarMenu'
+import SidebarMenu from './SidebarMenu'
 
 
 type SidebarWithMiniPanelProps = {
@@ -65,17 +64,6 @@ export default function SidebarWithMiniPanel({ sidebarImages, canvas, certId }: 
   }
 
 
-  const updateCanvasToDB = async (object) => {
-    if (!certId || !object) return;
-
-    try {
-      await axios.post(`http://localhost:3001/certificate/${certId}/elements`, object);
-      console.log("Added object to certificate in DB");
-    } catch (err) {
-      console.error("Failed to add object to certificate: " + err);
-    }
-  };
-
 
   const handleTextPropertyChange = async(property: string, value: any) => {
     if (!selectedTextObj) return
@@ -85,12 +73,6 @@ export default function SidebarWithMiniPanel({ sidebarImages, canvas, certId }: 
       [property]: value
     };
 
-    try {
-      await axios.patch(`http://localhost:3001/certificate/${certId}/object/${selectedTextObj.id}`, updates);
-      console.log('Updated object field in DB');
-    } catch (err) {
-      console.error("Failed to update object field in DB", err);
-    }
   }
 
 
@@ -100,8 +82,8 @@ export default function SidebarWithMiniPanel({ sidebarImages, canvas, certId }: 
         return (
           <LibraryPanel
             canvas={canvas}
-            updateCanvasToDB={updateCanvasToDB}
             sidebarImages={sidebarImages}
+            certId={certId}
           />
         )
       case 'staticText':
@@ -111,8 +93,8 @@ export default function SidebarWithMiniPanel({ sidebarImages, canvas, certId }: 
             fontSize={fontSize}
             fontFamily={fontFamily}
             fillColor={fillColor}
-            updateCanvasToDB={updateCanvasToDB}
             setSelectedTextObj={setSelectedTextObj}
+            certId={certId}
             />
         )
       case 'dynamicText':
@@ -122,24 +104,24 @@ export default function SidebarWithMiniPanel({ sidebarImages, canvas, certId }: 
             fontSize={fontSize}
             fontFamily={fontFamily}
             fillColor={fillColor}
-            updateCanvasToDB={updateCanvasToDB}
             setSelectedTextObj={setSelectedTextObj}
+            certId={certId}
           />
         )
       case 'digitalSign':
         return (
           <SignaturePanel
             canvas={canvas}
-            updateCanvasToDB={updateCanvasToDB}
             signurl={signurl}
+            certId={certId}
           />
         )
       case 'qrCode':
         return (
           <QRCodePanel
             canvas={canvas}
-            updateCanvasToDB={updateCanvasToDB}
             demoqr={demoqr}
+            certId={certId}
           />
         )
       default:

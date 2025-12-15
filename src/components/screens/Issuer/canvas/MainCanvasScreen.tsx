@@ -3,14 +3,15 @@ import { Canvas, Rect } from 'fabric';
 import * as fabric from 'fabric';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Image from './CredentialTemplate/Image';
-import DeleteComponent from './DeleteComponent';
+import DeleteComponent from './ui/DeleteButton';
 import Sidebar from './Sidebar/Sidebar';
-import { handleMoving, clearGuideLines } from './Snapping';
-import LayerList from './LayerList';
-import Export from './Export';
+import { handleMoving, clearGuideLines } from './logic/Snapping';
+import LayerList from './ui/LayerList';
+import Export from './ui/ExportPDF';
 import axios from 'axios';
 import rotate_icon from '@/assets/rotate.svg'
-
+import { attachGlobalBoundaryGuards } from './logic/Boundary';
+import { attachGlobalObjectStyling } from './logic/ObjectStyling';
 
 const MainCanvasScreen = () => {
   const location = useLocation();
@@ -48,10 +49,15 @@ const MainCanvasScreen = () => {
       initCanvas.backgroundColor = '#fff';
       initCanvas.renderAll();
       setCanvas(initCanvas);
-
+      attachGlobalObjectStyling(initCanvas);
       initCanvas.on('object:moving', (event) =>
         handleMoving(initCanvas, event.target, guideLines, setGuideLines)
+        
       );
+      initCanvas.on('object:moving',(event)=>
+        attachGlobalBoundaryGuards(initCanvas)
+      )
+      
       initCanvas.on('object:modified', () => clearGuideLines(initCanvas));
 
       return () => {
@@ -156,6 +162,93 @@ rotateImg.src = rotate_icon;
         ctx.restore();
       },
     });
+    rect.controls.layerUp = new fabric.Control({
+      x: 0.5,
+      y: -0.5,
+      offsetY: -20,
+      offsetX: -20,
+      cursorStyle: "pointer",
+
+      mouseUpHandler: (_, transform) => {
+        const target = transform.target;
+        const canvas = target.canvas;
+        if (!canvas) return;
+
+        const objs = canvas.getObjects();
+        const index = objs.indexOf(target);
+
+        if (index < objs.length - 1) {
+          canvas.remove(target);
+          canvas.insertAt(index + 1, target, true);  // FIXED
+          canvas.renderAll();
+        }
+      },
+
+      render: (ctx, left, top, styleOverride, obj) => {
+        const size = 18; // instead of cornerSize
+        ctx.save();
+        ctx.translate(left, top);
+        ctx.rotate(fabric.util.degreesToRadians(obj.angle || 0));
+
+        ctx.fillStyle = "white";
+        ctx.strokeStyle = "black";
+        ctx.lineWidth = 1.5;
+
+        ctx.beginPath();
+        ctx.moveTo(0, -size / 2);
+        ctx.lineTo(size / 2, size / 2);
+        ctx.lineTo(-size / 2, size / 2);
+        ctx.closePath();
+
+        ctx.fill();
+        ctx.stroke();
+        ctx.restore();
+      },
+    });
+    rect.controls.layerDown = new fabric.Control({
+      x: 0.5,
+      y: -0.5,
+      offsetY: 5,    
+      offsetX: -20,
+      cursorStyle: "pointer",
+
+      mouseUpHandler: (_, transform) => {
+        const target = transform.target;
+        const canvas = target.canvas;
+        if (!canvas) return;
+
+        const objs = canvas.getObjects();
+        const index = objs.indexOf(target);
+
+        if (index > 0) {
+          canvas.remove(target);
+          canvas.insertAt(index - 1, target, true);  // FIXED
+          canvas.renderAll();
+        }
+      },
+
+      render: (ctx, left, top, styleOverride, obj) => {
+        const size = 18;
+        ctx.save();
+        ctx.translate(left, top);
+        ctx.rotate(fabric.util.degreesToRadians(obj.angle || 0));
+
+        ctx.fillStyle = "white";
+        ctx.strokeStyle = "black";
+        ctx.lineWidth = 1.5;
+
+        ctx.beginPath();
+        ctx.moveTo(0, size / 2);
+        ctx.lineTo(size / 2, -size / 2);
+        ctx.lineTo(-size / 2, -size / 2);
+        ctx.closePath();
+
+        ctx.fill();
+        ctx.stroke();
+        ctx.restore();
+      },
+    });
+
 
     canvas.add(rect);
     canvas.setActiveObject(rect);
@@ -167,8 +260,6 @@ rotateImg.src = rotate_icon;
         const radius = 7;
 
         ctx.save();
-        ctx.strokeStyle = "black";
-        ctx.fillStyle = "#3BD4A6";
         ctx.beginPath();
         ctx.roundRect(left-6, top-6, 12,12,4);
         ctx.fill();
@@ -274,7 +365,7 @@ rotateImg.src = rotate_icon;
             Save
           </button>
         </div>
-        <LayerList canva={canvas}/>
+        
       </div>
     </div>
   );

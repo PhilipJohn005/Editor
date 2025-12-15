@@ -2,7 +2,7 @@ import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { ChevronRight } from 'lucide-react'
 import * as React from 'react'
-import { Gemini, Replit, MagicUI, VSCodium, MediaWiki, GooglePaLM } from '@/components/logos'
+import { Gemini, Replit, MagicUI, VSCodium, MediaWiki, GooglePaLM } from '@/components/ui/logos/index'
 
 export default function IntegrationsSection() {
     return (

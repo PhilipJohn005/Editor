@@ -1,9 +1,9 @@
 import React from 'react'
-import { Button } from '../../ui/button'
-import { Card, CardContent } from '../../ui/card'
-import logo1 from '../../../assets/cloudP.png'
-import logo2 from '../../../assets/cloudE.png'
-import logo3 from '../../../assets/netC.png'
+import { Button } from '../../../ui/button'
+import { Card, CardContent } from '../../../ui/card'
+import logo1 from '@/assets/cloudP.png'
+import logo2 from '@/assets/cloudE.png'
+import logo3 from '@/assets/netC.png'
 
 
 const certificates = [
@@ -67,7 +67,7 @@ const BadgeClass = () => {
                 >
                   Delete
                 </Button>
-                <Button variant="outline" className="border-border text-secondary">
+                <Button variant="outline" className="border-border text-primary">
                   Preview
                 </Button>
               </div>

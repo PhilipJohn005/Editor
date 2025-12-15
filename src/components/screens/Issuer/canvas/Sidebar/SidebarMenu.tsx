@@ -1,5 +1,5 @@
 // components/SidebarMenu.tsx
-import { MenuItem } from "../handlers/type-interfaceHandler"
+import { MenuItem } from "./handlers/type-interfaceHandler"
 
 interface SidebarMenuProps {
   menuItems: MenuItem[]

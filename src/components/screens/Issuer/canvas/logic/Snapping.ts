@@ -80,7 +80,7 @@ export const handleMoving =(canvas, obj, guideLines, setGuideLines)=>{
     let snapped = false;
 
     if (snapX !== null) {
-        newPosition.left = obj.left + (snapX - obj.left) * 0.5;;
+        newPosition.left = obj.left + (snapX - obj.left) * 0.5;
         if (guidelineX && !guidelineExists(canvas, guidelineX.id)) {
             const line = createVerticalGuideline(canvas, guidelineX.pos, guidelineX.id);
             newGuideLines.push(line);
@@ -91,7 +91,7 @@ export const handleMoving =(canvas, obj, guideLines, setGuideLines)=>{
     }
 
     if (snapY !== null) {
-        newPosition.top = obj.top + (snapY - obj.top) * 0.5;;
+        newPosition.top = obj.top + (snapY - obj.top) * 0.5;
         if (guidelineY && !guidelineExists(canvas, guidelineY.id)) {
             const line = createHorizontalGuideline(canvas, guidelineY.pos, guidelineY.id);
             newGuideLines.push(line);

@@ -1,10 +1,9 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import * as fabric from 'fabric'
-import ProgressBar from '../Progressbar';
+import ProgressBar from '../ui/Progressbar';
 import { uploadImageToS3 } from './handlers/uploadToS3';
 import { addImageToCanvas } from './handlers/addImageToCanvas';
-import { attachCanvasBoundaryGuards } from './handlers/applyBoundaryConstraints';
 
 interface ImageComponentProps {
   canvas: fabric.Canvas;
@@ -45,7 +44,7 @@ const ImageComponent: React.FC<ImageComponentProps> = ({canvas,check,s,certId,ad
 
         const fabricImage = await addImageToCanvas(canvas, base64Url, s3Url, certId, imgFile);
 
-        attachCanvasBoundaryGuards(canvas, fabricImage);
+       
         setUploading(false);
       };
     } catch (e) {

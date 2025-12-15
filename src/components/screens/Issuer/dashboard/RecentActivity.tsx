@@ -124,6 +124,12 @@ const placeholderData = [
     outcome: "75 participants",
     date: "2025-03-18",
   },
+  {
+    id: 6,
+    activity: "Kubernetes Hands-on Lab",
+    outcome: "75 participants",
+    date: "2025-03-18",
+  },
 ]
 
 export function RecentActivity() {

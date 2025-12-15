@@ -1,5 +1,7 @@
 import * as fabric from 'fabric'
 import axios from 'axios';
+import rotate_icon from '@/assets/rotate.svg'
+
 
 export async function addImageToCanvas(canvas: fabric.Canvas,base64Url: string,s3Url: string,certId: string,file: File): Promise<fabric.Image> {
   return new Promise((resolve) => {
@@ -7,7 +9,7 @@ export async function addImageToCanvas(canvas: fabric.Canvas,base64Url: string,s
     img.src = base64Url;
 
     img.onload = async () => {
-      const fabricImage = new fabric.Image(img, {
+      const fabricImage = new fabric.FabricImage(img, {
         hasBorders: true,
         hasControls: true,
         selectable: true,
@@ -22,6 +24,7 @@ export async function addImageToCanvas(canvas: fabric.Canvas,base64Url: string,s
         (canvas.height! * 0.8) / fabricImage.height!
       );
       fabricImage.scale(scaleFactor);
+      
       fabricImage.set({
         left: (canvas.width! - fabricImage.width! * scaleFactor) / 2,
         top: (canvas.height! - fabricImage.height! * scaleFactor) / 2,
@@ -35,13 +38,6 @@ export async function addImageToCanvas(canvas: fabric.Canvas,base64Url: string,s
       serialized.customType = 'image';
 
       await axios.post(`http://localhost:3001/certificate/${certId}/elements`,serialized);
-
-      fabricImage.set({
-        cornerColor: 'green',
-        cornerSize: 12,
-        transparentCorners: false,
-        cornerStyle: 'circle',
-      });
 
       canvas.renderAll();
       resolve(fabricImage);
