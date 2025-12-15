@@ -139,8 +139,9 @@ export const SertifyLogo = () => (
   <img
     src={sertifyLogo}
     alt="Sertify Logo"
-    width={168}
-    height={41}
+    width="168"
+    height="41"
+    className='mr-10'
   />
 );
 
