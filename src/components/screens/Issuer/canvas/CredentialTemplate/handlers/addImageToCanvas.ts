@@ -37,7 +37,7 @@ export async function addImageToCanvas(canvas: fabric.Canvas,base64Url: string,s
       serialized.src = s3Url;
       serialized.customType = 'image';
 
-      await axios.post(`http://localhost:3001/certificate/${certId}/elements`,serialized);
+      await axios.post(`/certificate/${certId}/elements`,serialized);
 
       canvas.renderAll();
       resolve(fabricImage);
