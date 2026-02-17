@@ -4,6 +4,8 @@ import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+import path from 'path'
+import { fileURLToPath } from "url";
 
 dotenv.config();
 
@@ -126,7 +128,21 @@ app.get('/certificate/:id', async (req, res) => {
   }
 });
 
-const PORT = process.env.PORT || 3001;
+
+// ===== SERVE FRONTEND (VITE BUILD) =====
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// dist folder after vite build
+const distPath = path.join(__dirname, "../dist");
+
+app.use(express.static(distPath));
+
+app.get("*", (req, res) => {
+  res.sendFile(path.join(distPath, "index.html"));
+});
+
+const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });
