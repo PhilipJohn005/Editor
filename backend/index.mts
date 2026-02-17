@@ -1,19 +1,21 @@
+import dotenv from 'dotenv';
+dotenv.config();
 import express from 'express';
 import cors from 'cors';
 import mongoose from 'mongoose';
-import dotenv from 'dotenv';
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import path from 'path'
 import { fileURLToPath } from "url";
 
-dotenv.config();
+
 
 const app = express();
 app.use(express.json({ limit: '10mb' })); 
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
 app.use(cors());
 
+console.log("MONGO:", process.env.MONGO_URI ? "loaded" : "missing");
 
 mongoose.connect(process.env.MONGO_URI!)
   .then(() => console.log("MongoDB connected"))
@@ -138,9 +140,10 @@ const distPath = path.join(__dirname, "../dist");
 
 app.use(express.static(distPath));
 
-app.get("*", (req, res) => {
+app.use((req, res) => {
   res.sendFile(path.join(distPath, "index.html"));
 });
+
 
 const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => {
