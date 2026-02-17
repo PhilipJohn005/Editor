@@ -79,7 +79,7 @@ const MainCanvasScreen = () => {
     const canvasJSON = canvas.toJSON();
 
     try {
-      await axios.put(`http://localhost:3001/certificate/${certId}`, {
+      await axios.put(`/certificate/${certId}`, {
         canvasData: canvasJSON
       });
       console.log("Canvas saved to DB");

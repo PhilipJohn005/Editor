@@ -26,7 +26,7 @@ export function createStaticText(canvas: fabric.Canvas, certId: string | null, o
 
   if (certId) {
     const payload = textObj.toObject(['id', 'customType']);
-    axios.post(`http://localhost:3001/certificate/${certId}/elements`, payload);
+    axios.post(`/certificate/${certId}/elements`, payload);
   }
 
   return textObj;
@@ -99,7 +99,7 @@ export function createDynamicText(canvas: fabric.Canvas, certId: string | null, 
 
   if (certId) {
     const payload = textObj.toObject(['id', 'customType']);
-    axios.post(`http://localhost:3001/certificate/${certId}/elements`, payload);
+    axios.post(`/certificate/${certId}/elements`, payload);
   }
 
   return textObj;
@@ -134,7 +134,7 @@ export async function createQRCode(canvas: fabric.Canvas, certId: string | null,
 
       if (certId) {
         const payload = qrImg.toObject(['id','customType']);
-        axios.post(`http://localhost:3001/certificate/${certId}/elements`, payload);
+        axios.post(`/certificate/${certId}/elements`, payload);
       }
 
       resolve(qrImg);
@@ -172,7 +172,7 @@ export async function createSignature(canvas: fabric.Canvas, certId: string | nu
 
       if (certId) {
         const payload = signImg.toObject(['id','customType']);
-        axios.post(`http://localhost:3001/certificate/${certId}/elements`, payload);
+        axios.post(`/certificate/${certId}/elements`, payload);
       }
 
       resolve(signImg);
@@ -205,7 +205,7 @@ export function createLibraryImage(canvas: fabric.Canvas, url: string,certId:str
       canvas.renderAll();
     if (certId) {
         const payload = img.toObject(['id','customType']);
-        axios.post(`http://localhost:3001/certificate/${certId}/elements`, payload);
+        axios.post(`/certificate/${certId}/elements`, payload);
       }
       resolve(img);
     };

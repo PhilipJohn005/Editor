@@ -13,7 +13,7 @@ const CanvasSetup = () => {
     else if (w === 842 && h === 595) text = 'A4 landscape';
 
     try {
-      const res = await axios.post('http://localhost:3001/certificate', {
+      const res = await axios.post('/certificate', {
         name: text,
         width: w,
         height: h,
