@@ -71,8 +71,6 @@ const MainCanvasScreen = () => {
     fabric.Object.prototype.toObject = function (propertiesToInclude = []) {
       return originalToObject.call(this, [...propertiesToInclude, 'id', 'customType', 'fieldName', 'certificateId']);
     };
-  
-  
   }, []);
 
   const saveCanvasToDB=async()=>{
@@ -318,18 +316,32 @@ rotateImg.src = rotate_icon;
         </button>
         <button
           onClick={() => {
-           if (canvas) {
-              const json = (canvas as any).toJSON([
-                'canvasWidth','canvasHeight'
-              ]);
+            if (!canvas) return;
+            const json = canvas.toJSON();
 
-              json.canvasWidth = canvas.getWidth();
-              json.canvasHeight = canvas.getHeight();
+            json.canvasWidth = canvas.getWidth();
+            json.canvasHeight = canvas.getHeight();
 
-              console.log(JSON.stringify(json, null, 2));
-              console.log(canvas.getObjects());
+            json.objects = json.objects.map((obj: any, index: number) => {
+              const fabricObj = canvas.getObjects()[index];
 
-            }
+              const rect = fabricObj.getBoundingRect(true);
+
+              const left = rect.left;
+              const top = rect.top;
+              const centerX = left + rect.width / 2;
+              const centerY = top + rect.height / 2;
+
+              return {
+                ...obj,
+                centerX,
+                centerY,
+                boundingWidth: rect.width,
+                boundingHeight: rect.height,
+              };
+            });
+
+            console.log(JSON.stringify(json, null, 2));
           }}
           className="absolute bg-green-600 px-4 py-2 text-white rounded"
           style={{ bottom: '40%', right: '20%' }}

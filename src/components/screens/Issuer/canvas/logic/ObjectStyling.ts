@@ -44,6 +44,7 @@ function applyControls(obj: fabric.Object) {
   applyLayerControls(obj);  
 }
 
+
 function applyRotateControl(obj: fabric.Object) {
   const existing = obj.controls?.mtr;
 
@@ -69,82 +70,122 @@ function applyRoundedCornerControls(obj: fabric.Object) {
   names.forEach((name) => {
     obj.controls[name] = new fabric.Control({
       ...(obj.controls[name] || {}),
-      render: (ctx, left, top) => {
+
+      cursorStyleHandler: fabric.controlsUtils.scaleCursorStyleHandler,
+
+      render: (ctx, left, top, styleOverride, target) => {
         ctx.save();
+        // move to control center
+        ctx.translate(left, top);
+
+        // rotate WITH object (same as rotate control)
+        ctx.rotate(fabric.util.degreesToRadians(target.angle || 0));
+
         ctx.strokeStyle = "black";
         ctx.fillStyle = "#3BD4A6";
-        ctx.roundRect(left - 7, top - 7, 14, 14, 4);
+
+        // draw RELATIVE to center
+        ctx.roundRect(-7, -7, 14, 14, 4);
         ctx.fill();
         ctx.stroke();
+
         ctx.restore();
       },
     });
   });
 }
 
+function layerControlPosition(
+  side: "up" | "down",
+  target: fabric.Object
+) {
+  const center = target.getCenterPoint();
+
+ 
+  const halfW = (target.getScaledWidth() ?? 0) / 2;
+  const halfH = (target.getScaledHeight() ?? 0) / 2;
+
+  const gap = 24; 
+
+  
+  const x = 
+    side=="up"?
+      center.x + halfW: 
+      center.x + halfW + gap
+  const y = center.y - halfH - 1.5* gap
+
+  return new fabric.Point(x, y);
+}
+
+function layerUpPosition(dim: any, finalMatrix: number[], target: fabric.Object) {
+  return layerControlPosition("up", target);
+}
+
+function layerDownPosition(dim: any, finalMatrix: number[], target: fabric.Object) {
+  return layerControlPosition("down", target);
+}
+
+
 function applyLayerControls(obj: fabric.Object) {
  
   obj.controls.layerUp = new fabric.Control({
-    x: 0.5,             //this is wrt ot object height and width and not canvas and pixel .. so 0.5 is 505 of object widht and + means right  and y-> -0.5 means 50% object height...together is top right corner...rest is done by offests
+    /*x: 0.5,             //this is wrt ot object height and width and not canvas and pixel .. so 0.5 is 505 of object widht and + means right  and y-> -0.5 means 50% object height...together is top right corner...rest is done by offests
     y: -0.5,
     offsetY: -20,
     offsetX: -20,
-    cursorStyle: "pointer",
+    cursorStyle: "pointer",*/
 
+    positionHandler:layerUpPosition,
+    cursorStyle:"pointer",
     mouseUpHandler: (_, transform) => {
       moveLayer(transform.target, "up");   
     },
 
-    render: (ctx, left, top, styleOverride, o) => {
-      const size = 18;
-      ctx.save();
-      ctx.translate(left, top);
-      ctx.rotate(fabric.util.degreesToRadians(o.angle || 0));
-
-      ctx.beginPath();
-      ctx.moveTo(0,size/2);
-      ctx.lineTo(0,-size/4)
-
-      ctx.lineTo(-size/3,0)
-      ctx.moveTo(0,-size/4);
-      ctx.lineTo(size/3,0);
-
-      ctx.stroke();
-      ctx.restore();
-    },
+    render:drawUpArrow
   });
 
   
   obj.controls.layerDown = new fabric.Control({
-    x: 0.75,
-    y: -0.5,
-    offsetY: -15,
-    
-    cursorStyle: "pointer",
-
+   positionHandler:layerDownPosition,
+    cursorStyle:"pointer",
     mouseUpHandler: (_, transform) => {
       moveLayer(transform.target, "down"); 
     },
 
-    render: (ctx, left, top, styleOverride, o) => {
-      const size = 18;
-      ctx.save();
-      ctx.translate(left, top);
-      ctx.rotate(fabric.util.degreesToRadians(o.angle || 0));
-
-    
-
-      ctx.beginPath();
-      ctx.moveTo(0, -size / 2);     
-      ctx.lineTo(0, size / 4);     
-   
-      ctx.lineTo(size / 3, 0);    
-      ctx.moveTo(0, size / 4);      
-      ctx.lineTo(-size / 3, 0);     
-
-      ctx.stroke();
-      ctx.closePath();
-      ctx.restore();
-    },
+    render: drawDownArrow
   });
+}
+
+
+
+function drawUpArrow(ctx: CanvasRenderingContext2D, left: number, top: number) {
+  const size = 18;
+  ctx.save();
+  ctx.translate(left, top);
+
+  ctx.beginPath();
+  ctx.moveTo(0, size / 2);
+  ctx.lineTo(0, -size / 2);
+  ctx.lineTo(-size / 3, 0);
+  ctx.moveTo(0, -size / 2);
+  ctx.lineTo(size / 3, 0);
+
+  ctx.stroke();
+  ctx.restore();
+}
+
+function drawDownArrow(ctx: CanvasRenderingContext2D, left: number, top: number) {
+  const size = 18;
+  ctx.save();
+  ctx.translate(left, top);
+
+  ctx.beginPath();
+  ctx.moveTo(0, -size / 2);
+  ctx.lineTo(0, size / 2);
+  ctx.lineTo(size / 3, 0);
+  ctx.moveTo(0, size / 2);
+  ctx.lineTo(-size / 3, 0);
+
+  ctx.stroke();
+  ctx.restore();
 }
