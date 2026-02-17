@@ -1,176 +1,213 @@
-import { Line } from 'fabric'
+import { Line } from 'fabric';
 
-const snappingDistance = 10;
+const SNAP_DISTANCE = 10;
+const RELEASE_DISTANCE = 14;
 const GUIDELINE_OFFSET = 1;
 
+// per-object snap state
+const snapState = new WeakMap<any, { x: number | null; y: number | null }>();
 
-let isSnapped = false;
-let lastSnapPosition = { x: null, y: null };
+import { Circle, Rect } from "fabric";
 
-export const handleMoving =(canvas, obj, guideLines, setGuideLines)=>{
-    const canvasWidth = canvas.width;
-    const canvasHeight = canvas.height;
+export function drawDebugOverlay(canvas, obj) {
+  // clear old debug objects
+  canvas.getObjects().forEach(o => {
+    if (o.debug === true) canvas.remove(o);
+  });
 
-    // Get the actual bounding box that accounts for rotation
-    const boundingRect = obj.getBoundingRect();
-    const left = boundingRect.left;
-    const top = boundingRect.top;
-    const right = left + boundingRect.width;
-    const bottom = top + boundingRect.height;
-    const centerX = left + boundingRect.width / 2;
-    const centerY = top + boundingRect.height / 2;
+  const rect = obj.getBoundingRect(true);
 
-    const offsetX = boundingRect.left - obj.left;
-    const offsetY = boundingRect.top - obj.top;
+  // 🔵 origin (obj.left / obj.top)
+  const originDot = new Circle({
+    left: obj.left,
+    top: obj.top,
+    radius: 4,
+    fill: "blue",
+    originX: "center",
+    originY: "center",
+    selectable: false,
+    evented: false,
+  });
+  (originDot as any).debug = true;
 
-    let newGuideLines = [];
+  // 🟡 bounding rect top-left
+  const rectDot = new Circle({
+    left: rect.left,
+    top: rect.top,
+    radius: 4,
+    fill: "yellow",
+    originX: "center",
+    originY: "center",
+    selectable: false,
+    evented: false,
+  });
+  (rectDot as any).debug = true;
+
+  // 🟥 bounding rectangle
+  const bbox = new Rect({
+    left: rect.left,
+    top: rect.top,
+    width: rect.width,
+    height: rect.height,
+    fill: "rgba(255,0,0,0.08)",
+    stroke: "red",
+    strokeDashArray: [4, 4],
+    selectable: false,
+    evented: false,
+  });
+  (bbox as any).debug = true;
+
+  // 🟢 bounding center
+  const centerDot = new Circle({
+    left: rect.left + rect.width / 2,
+    top: rect.top + rect.height / 2,
+    radius: 4,
+    fill: "green",
+    originX: "center",
+    originY: "center",
+    selectable: false,
+    evented: false,
+  });
+  (centerDot as any).debug = true;
+
+  canvas.add(bbox, originDot, rectDot, centerDot);
+  canvas.requestRenderAll();
+}
+
+
+export const handleMoving = (canvas, obj, guideLines, setGuideLines) => {
+  if (!obj) return;
+
+  let state = snapState.get(obj);
+  if (!state) {
+    state = { x: null, y: null };
+    snapState.set(obj, state);
+  }
+
+  const zoom = canvas.getZoom?.() || 1;
+  const snap = SNAP_DISTANCE / zoom;
+  const release = RELEASE_DISTANCE / zoom;
+
+  const canvasWidth = canvas.width;
+  const canvasHeight = canvas.height;
+
+  const rect = obj.getBoundingRect(true);
+  const left = rect.left;
+  const top = rect.top;
+  const right = left + rect.width;
+  const bottom = top + rect.height;
+  const centerX = left + rect.width / 2;
+  const centerY = top + rect.height / 2;
+
+  let newGuideLines = [];
+
+  let targetLeft = obj.left;
+  let targetTop = obj.top;
+  //drawDebugOverlay(canvas, obj); //remove this
+
+  /* ================= X AXIS ================= */
+
+  if (state.x === null) {
+    if (Math.abs(left) < snap) {
+      targetLeft = obj.left - left; // Move object so left edge aligns with 0
+      state.x = targetLeft;
+      addV(canvas, 0, 'vertical-left', newGuideLines);
+    } else if (Math.abs(right - canvasWidth) < snap) {
+      targetLeft = obj.left + (canvasWidth - right); // Move object so right edge aligns with canvasWidth
+      state.x = targetLeft;
+      addV(canvas, canvasWidth - GUIDELINE_OFFSET, 'vertical-right', newGuideLines);
+    } else if (Math.abs(centerX - canvasWidth / 2) < snap) {
+      targetLeft = obj.left + (canvasWidth / 2 - centerX); // Move object so center aligns with canvas center
+      state.x = targetLeft;
+      addV(canvas, canvasWidth / 2, 'vertical-center', newGuideLines);
+    }
+  } else {
+    if (Math.abs(obj.left - state.x) > release) {
+      state.x = null;
+    } else {
+      targetLeft = state.x;
+    }
+  }
+
+  /* ================= Y AXIS ================= */
+
+  if (state.y === null) {
+    if (Math.abs(top) < snap) {
+      targetTop = obj.top - top; // Move object so top edge aligns with 0
+      state.y = targetTop;
+      addH(canvas, 0, 'horizontal-top', newGuideLines);
+    } else if (Math.abs(bottom - canvasHeight) < snap) {
+      targetTop = obj.top + (canvasHeight - bottom); // Move object so bottom edge aligns with canvasHeight
+      state.y = targetTop;
+      addH(canvas, canvasHeight - GUIDELINE_OFFSET, 'horizontal-bottom', newGuideLines);
+    } else if (Math.abs(centerY - canvasHeight / 2) < snap) {
+      targetTop = obj.top + (canvasHeight / 2 - centerY); // Move object so center aligns with canvas center
+      state.y = targetTop;
+      addH(canvas, canvasHeight / 2, 'horizontal-center', newGuideLines);
+    }
+  } else {
+    if (Math.abs(obj.top - state.y) > release) {
+      state.y = null;
+    } else {
+      targetTop = state.y;
+    }
+  }
+
+  if (targetLeft !== obj.left || targetTop !== obj.top) {
+    obj.set({ left: targetLeft, top: targetTop });
+    obj.setCoords();
+    setGuideLines(newGuideLines);
+  }
+
+  // clear ONLY when fully unsnapped
+  if (state.x === null && state.y === null) {
     clearGuideLines(canvas);
-
-    let snapX = null;
-    let snapY = null;
-    let guidelineX = null;
-    let guidelineY = null;
-    
-    const canvasCenterX = canvasWidth / 2;
-    const canvasCenterY = canvasHeight / 2;
-
-    if (!isSnapped) {     
-        if (Math.abs(left) < snappingDistance) {
-            snapX = -offsetX;
-            guidelineX = { pos: 0, id: "vertical-left" };
-        }
-        
-        if (Math.abs(top) < snappingDistance) {
-            snapY = -offsetY;
-            guidelineY = { pos: 0, id: "horizontal-top" };
-        }
-
-        if (Math.abs(right - canvasWidth) < snappingDistance) {
-            snapX = canvasWidth - boundingRect.width - offsetX;
-            guidelineX = { pos: canvasWidth - GUIDELINE_OFFSET, id: "vertical-right" };
-        }
-
-        if (Math.abs(bottom - canvasHeight) < snappingDistance) {
-            snapY = canvasHeight - boundingRect.height - offsetY;
-            guidelineY = { pos: canvasHeight - GUIDELINE_OFFSET, id: "horizontal-bottom" };
-        }
-
-        if (!snapX && Math.abs(centerX - canvasCenterX) < snappingDistance) {
-            snapX = canvasCenterX - boundingRect.width / 2 - offsetX;
-            guidelineX = { pos: canvasCenterX, id: "vertical-center" };
-        }
-
-        if (!snapY && Math.abs(centerY - canvasCenterY) < snappingDistance) {
-            snapY = canvasCenterY - boundingRect.height / 2 - offsetY;
-            guidelineY = { pos: canvasCenterY, id: "horizontal-center" };
-        }
-    } else {
-        // If we're currently snapped, only check if we've moved beyond the snap threshold
-        const movedBeyondThresholdX = Math.abs(obj.left - lastSnapPosition.x) > snappingDistance / 2;
-        const movedBeyondThresholdY = Math.abs(obj.top - lastSnapPosition.y) > snappingDistance / 2;
-        
-        if (movedBeyondThresholdX || movedBeyondThresholdY) {
-            isSnapped = false;
-            lastSnapPosition = { x: null, y: null };
-        }
-    }
-
-   
-    const newPosition = { left: obj.left, top: obj.top };
-    let snapped = false;
-
-    if (snapX !== null) {
-        newPosition.left = obj.left + (snapX - obj.left) * 0.5;
-        if (guidelineX && !guidelineExists(canvas, guidelineX.id)) {
-            const line = createVerticalGuideline(canvas, guidelineX.pos, guidelineX.id);
-            newGuideLines.push(line);
-            canvas.add(line);
-        }
-        snapped = true;
-        lastSnapPosition.x = newPosition.left;
-    }
-
-    if (snapY !== null) {
-        newPosition.top = obj.top + (snapY - obj.top) * 0.5;
-        if (guidelineY && !guidelineExists(canvas, guidelineY.id)) {
-            const line = createHorizontalGuideline(canvas, guidelineY.pos, guidelineY.id);
-            newGuideLines.push(line);
-            canvas.add(line);
-        }
-        snapped = true;
-        lastSnapPosition.y = newPosition.top;
-    }
-
-    // Update snapped state
-    isSnapped = snapped;
-
-    // Only set position if we actually need to change it
-    if (snapped && (newPosition.left !== obj.left || newPosition.top !== obj.top)) {
-        obj.set(newPosition).setCoords();
-    }
-
-    if (!snapped) {
-        clearGuideLines(canvas);
-    } else {
-        setGuideLines(newGuideLines);
-    }
+  }
 };
 
-// Rest of your helper functions remain exactly the same
-export const createVerticalGuideline = (canvas, x, id) => {
-    return new Line([x, -10, x, canvas.height + 10], { 
-        id,
-        stroke: "red",
-        strokeWidth: 1,
-        selectable: false,
-        evented: false,
-        strokeDashArray: [5, 5],
-        opacity: 0.8,
-        hasControls: false,
-        hasBorders: false,
-        hoverCursor: 'default',
-        lockMovementX: true,
-        lockMovementY: true,
-        lockRotation: true,
-        lockScalingX: true,
-        lockScalingY: true,
-        zIndex: 1000,
-        strokeLineCap: 'square' 
-    });
+/* ================= HELPERS ================= */
+
+const addV = (canvas, x, id, arr) => {
+  if (!guidelineExists(canvas, id)) {
+    const l = createVerticalGuideline(canvas, x, id);
+    canvas.add(l);
+    canvas.requestRenderAll();
+    arr.push(l);
+  }
 };
 
-export const createHorizontalGuideline = (canvas, y, id) => {
-    return new Line([-10, y, canvas.width + 10, y], {
-        id,
-        stroke: "red",
-        strokeWidth: 1,
-        selectable: false,
-        evented: false,
-        strokeDashArray: [5, 5],
-        opacity: 0.8,
-        hasControls: false,
-        hasBorders: false,
-        hoverCursor: 'default',
-        lockMovementX: true,
-        lockMovementY: true,
-        lockRotation: true,
-        lockScalingX: true,
-        lockScalingY: true,
-        zIndex: 1000,
-        strokeLineCap: 'square' 
-    });
+const addH = (canvas, y, id, arr) => {
+  if (!guidelineExists(canvas, id)) {
+    const l = createHorizontalGuideline(canvas, y, id);
+    canvas.add(l);
+    canvas.requestRenderAll();
+    arr.push(l);
+  }
 };
+
+export const createVerticalGuideline = (canvas, x, id) =>
+  new Line([x, -10, x, canvas.height + 10], guideStyle(id));
+
+export const createHorizontalGuideline = (canvas, y, id) =>
+  new Line([-10, y, canvas.width + 10, y], guideStyle(id));
+
+const guideStyle = (id) => ({
+  id,
+  stroke: 'red',
+  strokeWidth: 1,
+  selectable: false,
+  evented: false,
+  strokeDashArray: [5, 5],
+  opacity: 0.8,
+});
 
 export const clearGuideLines = (canvas) => {
-    const objects = canvas.getObjects();
-    objects.forEach((obj) => {
-        if (obj.id && (obj.id.startsWith("vertical-") || obj.id.startsWith("horizontal-"))) {
-            canvas.remove(obj);
-        }
-    });
+  canvas.getObjects().forEach((o) => {
+    if (o.id?.startsWith('vertical-') || o.id?.startsWith('horizontal-')) {
+      canvas.remove(o);
+    }
+  });
 };
 
-const guidelineExists = (canvas, id) => {
-    const objects = canvas.getObjects();
-    return objects.some((obj) => obj.id === id);
-};
+const guidelineExists = (canvas, id) =>
+  canvas.getObjects().some((o) => o.id === id);

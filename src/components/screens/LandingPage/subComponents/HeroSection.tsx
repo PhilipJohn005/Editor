@@ -36,7 +36,7 @@ const Hero02 = () => {
             <Button
               size="lg"
               className="rounded-full text-base"
-              onClick={() => navigate("/login")}
+              onClick={() => navigate("/dashboard")}
             >
               Get Started <ArrowUpRight className="h-5! w-5!" />
             </Button>
