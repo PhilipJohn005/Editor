@@ -9,7 +9,8 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "backend": "node --loader ts-node/esm --no-warnings backend/index.mts",
-    "dev:fullstack": "concurrently --names \"FRONTEND,BACKEND\" --prefix \"[{name}]\" --prefix-colors \"bgBlue.bold,bgMagenta.bold\" \"npm run dev\" \"npm run backend\""
+    "dev:fullstack": "concurrently --names \"FRONTEND,BACKEND\" --prefix \"[{name}]\" --prefix-colors \"bgBlue.bold,bgMagenta.bold\" \"npm run dev\" \"npm run backend\"",
+    "start": "node --loader ts-node/esm backend/index.mts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.828.0",
